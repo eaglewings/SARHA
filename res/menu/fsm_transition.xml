@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item android:id="@+id/addDOaction" android:titleCondensed="Add digital Action" android:title="Add new action for a digital output"></item>
+    <item android:id="@+id/addCondition" android:titleCondensed="Add Condition" android:title="Add new condition"></item>
+    
+</menu>
