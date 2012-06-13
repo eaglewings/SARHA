@@ -3,161 +3,173 @@ package ch.fhnw.students.keller.benjamin.sarha.fsm.ui;
 import java.util.ArrayList;
 
 import android.content.Context;
-import android.util.Log;
-import android.view.GestureDetector;
-import android.view.GestureDetector.OnGestureListener;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnFocusChangeListener;
-import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.ToggleButton;
+import ch.fhnw.students.keller.benjamin.sarha.AppData;
 import ch.fhnw.students.keller.benjamin.sarha.R;
 import ch.fhnw.students.keller.benjamin.sarha.fsm.Action;
-import ch.fhnw.students.keller.benjamin.sarha.fsm.DigitalOutAction;
+import ch.fhnw.students.keller.benjamin.sarha.fsm.Action.ActionType;
 
-public class ActionAdapter extends ArrayAdapter<Action> {
-	private Context context;
-	private DigitalOutAction da;
-	private int position;
-	private View view;
-	private View visibleDeleteButton;
+public class ActionAdapter extends BaseAdapter {
+	private ArrayList<ArrayList<Action>> actions;
+	private LayoutInflater inflater;
 
-
-	public ActionAdapter(Context context, ArrayList<Action> actions) {
-		
-		super(context, R.layout.fsm_listviewitem_action_digital, actions);
-		this.context = context;
+	public ActionAdapter(Context context, ArrayList<ArrayList<Action>> actions) {
+		this.actions = actions;
+		inflater = (LayoutInflater) context
+				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
 
-	public View getView(int position, View convertView, ViewGroup parent) {
-		View v = convertView;
-		this.position=position;
-		Action a = this.getItem(position);
+	@Override
+	public int getCount() {
+		int size = 0;
+		for (ArrayList<Action> typeList : actions) {
+			size += typeList.size();
+		}
+		return size;
+	}
 
-		if (a instanceof DigitalOutAction) {
-			da = (DigitalOutAction) a;
-			if (v == null) {
-						LayoutInflater inflater = (LayoutInflater) context
-						.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-				v = inflater.inflate(R.layout.fsm_listviewitem_action_digital, parent, false);
-				
-
-			}
-
-			if (a != null) {
-
-				TextView txtView1 = (TextView) v.findViewById(R.id.textView1);
-				ToggleButton toggleButton = (ToggleButton) v
-						.findViewById(R.id.toggleButton1);
-				Button deleteButton = (Button) v.findViewById(R.id.btDelete);
-				deleteButton.setFocusable(true);
-				deleteButton.setOnFocusChangeListener(new OnFocusChangeListener() {
-					
-					@Override
-					public void onFocusChange(View v, boolean hasFocus) {
-						Log.d("actionadapter", "focuschange"+v);
-						if(!hasFocus){
-							v.setVisibility(View.INVISIBLE);
-							}
-						
-					}
-				});
-				deleteButton.setOnClickListener(new OnClickListener() {
-					private int pos=ActionAdapter.this.position;
-					@Override
-					public void onClick(View v) {
-						v.setVisibility(View.INVISIBLE);
-						remove(getItem(pos));
-						
-					}
-				});
-				
-				toggleButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-					private DigitalOutAction da = ActionAdapter.this.da;
-					
-					@Override
-					public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-						if(isChecked){
-							da.setValue(true);
-						}
-						else{
-							da.setValue(false);
-						}
-						
-					}
-				});
-
-				txtView1.setText("Ausgangname");
-				if (da.getValue()) {
-					toggleButton.setChecked(true);
+	@Override
+	public Object getItem(int pos) {
+		for (int i = 0; i < ActionType.values().length; i++) {
+			for (ArrayList<Action> typeList : actions) {
+				if (pos >= typeList.size()) {
+					pos -= typeList.size();
 				} else {
-					toggleButton.setChecked(false);
+					return typeList.get(pos);
 				}
-				view=deleteButton;
-				
-				v.setOnTouchListener(new OnTouchListener() {
-					private View view = ActionAdapter.this.view;
-					
-					GestureDetector gd=new GestureDetector(new OnGestureListener() {
-						
-						@Override
-						public boolean onSingleTapUp(MotionEvent e) {
-							return false;
-						}
-						
-						@Override
-						public void onShowPress(MotionEvent e) {}
-						
-						@Override
-						public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
-								float distanceY) {
-							return false;
-						}
-						
-						@Override
-						public void onLongPress(MotionEvent e) {}
-						
-						@Override
-						public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
-								float velocityY) {
-							
-							Animation animation = new AlphaAnimation(0.0f, 1.0f);
-							animation.setDuration(300);
-							view.startAnimation(animation);
-							view.setVisibility(View.VISIBLE);
-							visibleDeleteButton=view;
-							view.requestFocus();
-							return false;
-						}
-						
-						@Override
-						public boolean onDown(MotionEvent e) {
-							if(visibleDeleteButton!=null){
-								visibleDeleteButton.setVisibility(View.INVISIBLE);
-								visibleDeleteButton=null;
-							}
-							return false;
-						}
-					});
-					public boolean onTouch(View v, MotionEvent event) {
-						gd.onTouchEvent(event);
-						return true;
-					}
-				});
-
 			}
 		}
+
+		return null;
+	}
+
+	@Override
+	public long getItemId(int pos) {
+		return 0;
+	}
+
+	@Override
+	public int getViewTypeCount() {
+		return Action.ActionType.values().length;
+	}
+
+	@Override
+	public int getItemViewType(int position) {
+		Action action = (Action) getItem(position);
+		return Action.getType(action).ordinal();
+
+	}
+
+	@Override
+	public View getView(int pos, View convertView, ViewGroup parent) {
+		ViewHolder holder = new ViewHolder();
+		Action action = (Action) getItem(pos);
+		holder.action = action;
+		View v = convertView;
+		System.out.println(action);
+		switch (Action.ActionType.values()[getItemViewType(pos)]) {
+		case AO:
+			if(v==null){
+			v = inflater.inflate(R.layout.fsm_listviewitem_action_analog, null);
+			}
+			 holder.sbValue = (SeekBar) v.findViewById(R.id.sbValue);
+			 holder.tvValue = (TextView) v.findViewById(R.id.tvValue);
+			 holder.btDelete = (Button) v.findViewById(R.id.btDelete);
+			 holder.tvName = (TextView) v.findViewById(R.id.tvName);
+			 holder.sbValue.setOnSeekBarChangeListener( holder.sbChangeListener);
+			 holder.btDelete.setOnClickListener( holder.btDeleteClickListener);
+			 holder.sbValue.setProgress(action.getValue());
+			 holder.tvValue.setText("" + action.getValue());
+			break;
+		case DO:
+			if(v==null){
+			v = inflater
+					.inflate(R.layout.fsm_listviewitem_action_digital, null);
+			}
+			 holder.tbValue = (ToggleButton) v.findViewById(R.id.tbValue);
+			 holder.tvValue = (TextView) v.findViewById(R.id.tvValue);
+			 holder.btDelete = (Button) v.findViewById(R.id.btDelete);
+			 holder.tvName = (TextView) v.findViewById(R.id.tvName);
+			 holder.btDelete.setOnClickListener( holder.btDeleteClickListener);
+			 holder.tbValue
+					.setOnCheckedChangeListener( holder.tbCheckedChangedListener);
+
+			
+
+			 holder.tbValue.setChecked( action.getValue() == 1 ? true
+					: false);
+
+			break;
+		}
+		
+		 holder.tvName.setText(action.getAddressIdentifier().toString());
+		 v.setTag(holder);
 		return v;
 	}
+
+	@Override
+	public void notifyDataSetChanged() {
+		// TODO Auto-generated method stub
+		super.notifyDataSetChanged();
+	}
+
+	private class ViewHolder {
+		public Action action;
+		public TextView tvName, tvValue;
+		public ToggleButton tbValue;
+		public SeekBar sbValue;
+		public Button btDelete;
+
+		public OnSeekBarChangeListener sbChangeListener = new OnSeekBarChangeListener() {
+
+			@Override
+			public void onStopTrackingTouch(SeekBar seekBar) {
+			}
+
+			@Override
+			public void onStartTrackingTouch(SeekBar seekBar) {
+			}
+
+			@Override
+			public void onProgressChanged(SeekBar seekBar, int progress,
+					boolean fromUser) {
+				tvValue.setText("" + progress);
+				action.setValue(progress);
+			}
+		};
+		public OnClickListener btDeleteClickListener = new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				AppData.currentWorkingTransition.removeAction(action);
+
+			}
+		};
+		public OnCheckedChangeListener tbCheckedChangedListener = new OnCheckedChangeListener() {
+
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView,
+					boolean isChecked) {
+				if (isChecked) {
+					action.setValue(1);
+				} else {
+					action.setValue(0);
+				}
+
+			}
+		};
+
+	}
+
 }

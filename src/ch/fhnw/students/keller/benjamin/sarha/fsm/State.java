@@ -1,31 +1,24 @@
 package ch.fhnw.students.keller.benjamin.sarha.fsm;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
-public class State extends Vector<Transition> {
+import ch.fhnw.students.keller.benjamin.sarha.LuaParseable;
+
+public class State extends ArrayList<Transition> implements LuaParseable{
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	private String stateName;
-	private boolean active; // Flag for active State
+	public final StateMachine stateMachine;
 
 	public State(StateMachine stateMachine, String stateName) {
 		super();
 		setStateName(stateName);
+		this.stateMachine=stateMachine;
 	}
 
-	public void activate() {
-		active = true;
-	}
-
-	public void deactivate() {
-		active = false;
-	}
-
-	public boolean isActive() {
-		return active;
-	}
+	
 
 	public void setStateName(String str) {
 		stateName = str;
@@ -44,6 +37,7 @@ public class State extends Vector<Transition> {
 		}
 	}
 
+	@Override
 	public boolean equals(Object o) {
 		if (o instanceof State) {
 			return super.equals(o)
@@ -51,6 +45,31 @@ public class State extends Vector<Transition> {
 		}
 		return false;
 
+	}
+
+	@Override
+	public String parse() {
+		int size = this.size();
+		String lua ="";
+		
+		lua = "function "+stateMachine.getLuaFunctionForState(this) + "\n";
+		lua += "\tcoroutine.yield()\n";
+		if(size > 0){
+		lua += "\tif ";
+		
+		for (int i=0;i<size-1;i++) {
+			lua += this.get(i).parse();
+			
+			lua+="\telseif ";
+		}
+		lua += this.get(size-1).parse();
+		lua += "\telse\n";
+		
+		lua += "\t\treturn "+stateMachine.getLuaFunctionForState(this)+"\n";
+		lua +="\tend\n";
+		}
+		lua+= "end\n\n";
+		return lua;
 	}
 
 }

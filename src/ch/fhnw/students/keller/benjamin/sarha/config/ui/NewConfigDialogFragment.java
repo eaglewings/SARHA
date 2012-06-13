@@ -22,7 +22,8 @@ public class NewConfigDialogFragment extends DialogFragment {
         return f;
     }
 	
-	 public Dialog onCreateDialog(Bundle savedInstanceState) {
+	 @Override
+	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		 input = new EditText(this.getActivity());
 		 input.setSingleLine();
 		 if(savedInstanceState==null){
@@ -38,14 +39,16 @@ public class NewConfigDialogFragment extends DialogFragment {
 	                .setView(input)
 	                .setPositiveButton("OK",
 	                    new DialogInterface.OnClickListener() {
-	                        public void onClick(DialogInterface dialog, int whichButton) {
+	                        @Override
+							public void onClick(DialogInterface dialog, int whichButton) {
 	                            ((ConfigManagerActivity)getActivity()).doNewConfigPositiveClick(input.getText().toString());
 	                        }
 	                    }
 	                )
 	                .setNegativeButton("Cancel",
 	                    new DialogInterface.OnClickListener() {
-	                        public void onClick(DialogInterface dialog, int whichButton) {
+	                        @Override
+							public void onClick(DialogInterface dialog, int whichButton) {
 	                            ((ConfigManagerActivity)getActivity()).doNewConfigNegativeClick();
 	                        }
 	                    }

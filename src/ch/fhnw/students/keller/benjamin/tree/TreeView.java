@@ -34,7 +34,7 @@ public class TreeView extends LinearLayout implements Observer {
 		int i = 0;
 		for (TreeNode nd : node.getChildNodes()) {
 			System.out.println("addview: " + getChildCount() + "loop nr: " + i);
-			nd.view.leftSpaceView.setLayoutParams(new LayoutParams(nd.getTreeLevel()*10, LayoutParams.MATCH_PARENT));
+			nd.view.leftSpaceView.setLayoutParams(new LayoutParams(nd.getTreeLevel()*10, android.view.ViewGroup.LayoutParams.MATCH_PARENT));
 			addView(nd.view);
 			if (nd.isExpanded() && nd.getChildNodes().size() > 0) {
 				System.out.println("add childviews");

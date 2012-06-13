@@ -24,7 +24,7 @@ public class Config implements Serializable{
 	public String deviceName;
 	private int createId, changeId;
 	public ArrayList<IO.Type> types = new ArrayList<IO.Type>();
-	public final EnumMap<IO.Type, ArrayList<IOs>> ios = new EnumMap<IO.Type, ArrayList<IOs>>(IO.Type.class);
+	public EnumMap<IO.Type, ArrayList<IOs>> ios = new EnumMap<IO.Type, ArrayList<IOs>>(IO.Type.class);
 	
 	public Config(String name){
 		for (IO.Type type : IO.Type.values()) {
@@ -149,6 +149,7 @@ public class Config implements Serializable{
 		return null;
 	}
 	
+	@Override
 	public String toString(){
 		return name;
 	}

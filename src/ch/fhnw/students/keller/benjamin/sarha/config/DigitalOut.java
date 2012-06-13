@@ -16,6 +16,7 @@ public class DigitalOut extends IOs{
 
 	
 	
+	@Override
 	public boolean equals(Object o){
 		if( o instanceof DigitalOut){
 			DigitalOut dio= (DigitalOut)o;

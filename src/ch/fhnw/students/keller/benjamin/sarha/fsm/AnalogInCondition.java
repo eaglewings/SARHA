@@ -18,7 +18,7 @@ public class AnalogInCondition extends Condition {
 	public String parse() {
 		String lua="";
 		if(ai!=null && ac!=null){
-			lua= "("+ai+" "+ac.getString()+" "+value+")";
+			lua= "(kit.IO."+ai+".merge "+ac.getString()+" "+value+")";
 		}
 		if(isInverted()){
 			lua="(not "+lua+")";

@@ -13,15 +13,16 @@ import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
-public class ConfigsAdapter extends ArrayAdapter<Config> implements ListAdapter {
+public class ConfigManagerAdapter extends ArrayAdapter<Config> implements ListAdapter {
 	private Context context;
 	
-	public ConfigsAdapter(Context context, ArrayList<Config> configs){
+	public ConfigManagerAdapter(Context context, ArrayList<Config> configs){
 		super(context, android.R.layout.simple_list_item_2, configs);
 		this.context=context;
 	}
 	
 	
+	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		View v = convertView;
 		Config config=  getItem(position);

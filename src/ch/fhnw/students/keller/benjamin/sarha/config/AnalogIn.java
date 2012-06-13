@@ -15,6 +15,7 @@ public class AnalogIn extends IOs {
 	public String scale="";
 	public String unit="";
 
+	@Override
 	public boolean equals(Object o) {
 		if (o instanceof AnalogIn) {
 			AnalogIn ai = (AnalogIn) o;

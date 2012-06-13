@@ -12,9 +12,10 @@ public class AnalogOut extends IOs {
 		type=IO.Type.AO;
 	}
 	
-	public String scale;
-	public String unit;
+	public String scale="";
+	public String unit="";
 	
+	@Override
 	public boolean equals(Object o){
 		if( o instanceof AnalogOut){
 			AnalogOut ao= (AnalogOut)o;

@@ -17,6 +17,7 @@ public class StateAdapter extends ArrayAdapter<Transition> {
 		super(context,android.R.layout.simple_list_item_2,android.R.id.text1,state);
 		this.context=context;
 	}
+	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		View v = convertView;
 		if (v == null) {

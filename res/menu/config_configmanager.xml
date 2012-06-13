@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
-    <item android:id="@+id/menuitemnewconfig" android:title="New"></item>
-    <item android:id="@+id/menuitemexportconfig" android:title="Export"></item>
-    <item android:id="@+id/menuitemcopyconfig" android:title="Copy"></item>
-    <item android:id="@+id/menuitemimportconfig" android:title="Import"></item>
+    <item android:id="@+id/menuitemnewstatemachine" android:title="New"></item>
+    <item android:id="@+id/menuitemexportstatemachine" android:title="Export"></item>
+    <item android:id="@+id/menuitemcopystatemachine" android:title="Copy"></item>
+    <item android:id="@+id/menuitemimportstatemachine" android:title="Import"></item>
 
     
 

@@ -25,16 +25,16 @@ import ch.fhnw.students.keller.benjamin.sarha.R;
 import ch.fhnw.students.keller.benjamin.sarha.config.Config;
 
 public class ConfigManagerActivity extends FragmentActivity {
-	private ConfigsAdapter adapter;
+	private ConfigManagerAdapter adapter;
 	
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.main);
+		setContentView(R.layout.config_activity_configmanager);
 		
 		ListView list = (ListView) findViewById(R.id.listView1);
-		adapter= new ConfigsAdapter(this, AppData.configs);
+		adapter= new ConfigManagerAdapter(this, AppData.configs);
 		list.setAdapter(adapter);
 		
 		list.setOnItemClickListener(new OnItemClickListener() {

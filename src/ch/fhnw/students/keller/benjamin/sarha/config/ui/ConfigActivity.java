@@ -28,13 +28,14 @@ public class ConfigActivity extends FragmentActivity {
 		config=AppData.configs.get(position);
 		adapter = new ConfigAdapter(this, config);
 		
-		setContentView(R.layout.main);
+		setContentView(R.layout.config_activity_config);
 		
 		ListView list = (ListView) findViewById(R.id.listView1);
 		list.setAdapter(adapter);
 	}
 	
 	void showDialog(Object item, boolean newIO) {
+		System.out.println("item: "+ item+ " type: "+((IOs)item).type);
 	    DialogFragment newFragment = new IODialogManager(this,(IOs) item, newIO);
 	    newFragment.show(getSupportFragmentManager(), "dialog");
 	    

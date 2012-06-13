@@ -25,6 +25,7 @@ public class ExportConfigDialogFragment extends DialogFragment {
 	        return f;
 	    }
 	
+	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		 LinearLayout v = new LinearLayout(this.getActivity());
 		 v.setOrientation(LinearLayout.VERTICAL);
@@ -46,14 +47,16 @@ public class ExportConfigDialogFragment extends DialogFragment {
 	                .setView(v)
 	                .setPositiveButton("OK",
 	                    new DialogInterface.OnClickListener() {
-	                        public void onClick(DialogInterface dialog, int whichButton) {
+	                        @Override
+							public void onClick(DialogInterface dialog, int whichButton) {
 	                            ((ConfigManagerActivity)getActivity()).doExportConfigPositiveClick(e.getText().toString(),s.getSelectedItem());
 	                        }
 	                    }
 	                )
 	                .setNegativeButton("Cancel",
 	                    new DialogInterface.OnClickListener() {
-	                        public void onClick(DialogInterface dialog, int whichButton) {
+	                        @Override
+							public void onClick(DialogInterface dialog, int whichButton) {
 	                            ((ConfigManagerActivity)getActivity()).doNewConfigNegativeClick();
 	                        }
 	                    }

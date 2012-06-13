@@ -4,6 +4,7 @@ import ch.fhnw.students.keller.benjamin.sarha.LuaParseable;
 import ch.fhnw.students.keller.benjamin.tree.TreeNode;
 
 public abstract class Condition extends TreeNode implements LuaParseable{
+	@Override
 	public abstract String parse();
 	
 	public enum ConditionTypes{

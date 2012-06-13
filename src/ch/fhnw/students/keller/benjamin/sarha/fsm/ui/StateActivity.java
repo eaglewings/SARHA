@@ -18,30 +18,20 @@ import android.widget.TextView;
 import ch.fhnw.students.keller.benjamin.sarha.AppData;
 import ch.fhnw.students.keller.benjamin.sarha.R;
 import ch.fhnw.students.keller.benjamin.sarha.fsm.State;
-import ch.fhnw.students.keller.benjamin.sarha.fsm.StateMachine;
 import ch.fhnw.students.keller.benjamin.sarha.fsm.Transition;
 
 public class StateActivity extends Activity{
-	private StateMachine fsm;
 	private StateAdapter stateAdapter;
 	private State state;
 	private AlertDialog alertDia;
 	private Handler myHandler = new Handler();
 	
 
+	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.fsm_activity_state);
-		
-
-		fsm = AppData.stateMachine;
-
-		Bundle extras = getIntent().getExtras();
-		if (extras == null) {
-			return;
-		}
-		int position = extras.getInt("StateIndex");
-		state = fsm.get(position);
+		state = AppData.currentWorkingState;
 
 		ListView listViewTransitions = (ListView) findViewById(R.id.listViewTransitions);
 		
@@ -61,8 +51,7 @@ public class StateActivity extends Activity{
 					int position, long id) {
 				Intent i = new Intent(view.getContext(),
 						TransitionActivity.class);
-				i.putExtra("TransitionIndex", position);
-				i.putExtra("StateIndex", fsm.indexOf(state));
+				AppData.currentWorkingTransition=stateAdapter.getItem(position);
 				startActivity(i);
 
 			}
@@ -94,7 +83,7 @@ public class StateActivity extends Activity{
 						final int finalpos = pos;
 						alertDia.setTitle("Delete State \"" + state.get(pos)
 								+ "\"?");
-						alertDia.setButton(AlertDialog.BUTTON_POSITIVE,
+						alertDia.setButton(DialogInterface.BUTTON_POSITIVE,
 								"Delete",
 								new DialogInterface.OnClickListener() {
 
@@ -133,6 +122,7 @@ public class StateActivity extends Activity{
 		return true;
 	}
 
+	@Override
 	public void onResume() {
 		super.onResume();
 		

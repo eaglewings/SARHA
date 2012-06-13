@@ -41,9 +41,6 @@ public class NodeView extends LinearLayout implements Observer{
 			
 			@Override
 			public void onClick(View v) {
-				System.out.println("onclick: " + v.isLongClickable());
-				v.performLongClick();
-				System.out.println("longclick performed");
 				if(NodeView.this.node.isSelected()){
 					NodeView.this.node.getTree().unselectTreeNode();
 				}

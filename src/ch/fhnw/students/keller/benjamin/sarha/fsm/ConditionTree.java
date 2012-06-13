@@ -50,6 +50,9 @@ public class ConditionTree extends Tree implements LuaParseable {
 			for (TreeNode node : getChildNodes()) {
 				lua += ((LuaParseable) node).parse();
 			}
+			if(lua.equals("")){
+				return lua +"false";
+			}
 			return lua;
 		}
 

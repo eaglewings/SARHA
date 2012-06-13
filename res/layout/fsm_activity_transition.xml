@@ -68,7 +68,6 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />
         </LinearLayout>
-
     </LinearLayout>
 
     <TabHost
@@ -111,11 +110,17 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" >
 
-                    <ListView
-                        android:id="@+id/listViewConditions"
+                    <ScrollView
+                        android:id="@+id/scrollView1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" >
-                    </ListView>
+
+                        <ch.fhnw.students.keller.benjamin.tree.TreeView
+                            android:id="@+id/conditionView"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical" />
+                    </ScrollView>
                 </LinearLayout>
 
                 <LinearLayout

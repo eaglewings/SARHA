@@ -1,7 +1,5 @@
 package ch.fhnw.students.keller.benjamin.sarha.config.ui;
 
-import java.util.Arrays;
-
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -68,13 +66,21 @@ public class IODialogManager extends DialogFragment {
 		switch (io.type) {
 		case AI:
 			v = inflater.inflate(R.layout.config_dialog_analog, container, false);
+			scaleEdit = (EditText) v.findViewById(R.id.scale);
+
+			unitEdit = (EditText) v.findViewById(R.id.unit);
+			scaleEdit.setText(((AnalogIn) io).scale);
+			unitEdit.setText(((AnalogIn) io).unit);
 			break;
 		case AO:
 			v = inflater.inflate(R.layout.config_dialog_analog, container, false);
+			scaleEdit = (EditText) v.findViewById(R.id.scale);
+
+			unitEdit = (EditText) v.findViewById(R.id.unit);
+			scaleEdit.setText(((AnalogOut) io).scale);
+			unitEdit.setText(((AnalogOut) io).unit);
 			break;
 		case DI:
-			v = inflater.inflate(R.layout.config_dialog_digital, container, false);
-			break;
 		case DO:
 			v = inflater.inflate(R.layout.config_dialog_digital, container, false);
 			break;
@@ -82,9 +88,6 @@ public class IODialogManager extends DialogFragment {
 			break;
 		}
 		nameEdit = (EditText) v.findViewById(R.id.name);
-		scaleEdit = (EditText) v.findViewById(R.id.scale);
-
-		unitEdit = (EditText) v.findViewById(R.id.unit);
 		hwAddress = (Spinner) v.findViewById(R.id.hwaddress);
 		okButton = (Button) v.findViewById(R.id.okbutton);
 		cancelButton = (Button) v.findViewById(R.id.cancelbutton);
@@ -114,61 +117,19 @@ public class IODialogManager extends DialogFragment {
 			}
 		});
 		getDialog().setTitle(title);
-
-		switch (io.type) {
-		case AI:
-			hwAddress.setAdapter(new AddressIdentifierAdapter(context,
-					android.R.layout.simple_spinner_dropdown_item, io,
-					IO.AnalogIn.values()));
-			hwAddress.setSelection(Arrays.asList(IO.AnalogIn.values()).indexOf(
-					io.address));
-			scaleEdit.setText(((AnalogIn) io).scale);
-			unitEdit.setText(((AnalogIn) io).unit);
-			break;
-		case AO:
-			hwAddress.setAdapter(new AddressIdentifierAdapter(context,
-					android.R.layout.simple_spinner_dropdown_item, io,
-					IO.AnalogOut.values()));
-			hwAddress.setSelection(Arrays.asList(IO.AnalogOut.values())
-					.indexOf(io.address));
-			scaleEdit.setText(((AnalogOut) io).scale);
-			unitEdit.setText(((AnalogIn) io).unit);
-			break;
-		case DI:
-			hwAddress.setAdapter(new AddressIdentifierAdapter(context,
-					android.R.layout.simple_spinner_dropdown_item, io,
-					IO.DigitalIn.values()));
-			hwAddress.setSelection(Arrays.asList(IO.DigitalIn.values())
-					.indexOf(io.address));
-			break;
-		case DO:
-			hwAddress.setAdapter(new AddressIdentifierAdapter(context,
-					android.R.layout.simple_spinner_dropdown_item, io,
-					IO.DigitalOut.values()));
-			hwAddress.setSelection(Arrays.asList(IO.DigitalOut.values())
-					.indexOf(io.address));
-			break;
-		default:
-			break;
-		}
-
-		/*
-		 * View v = inflater.inflate(R.layout.fragment_dialog, container,
-		 * false); View tv = v.findViewById(R.id.textView1); ((TextView)
-		 * tv).setText("Dialog Text");
-		 * 
-		 * // Watch for button clicks. Button button = (Button)
-		 * v.findViewById(R.id.button1); button.setOnClickListener(new
-		 * OnClickListener() { public void onClick(View v) { // When button is
-		 * clicked, call up to owning activity. IODialogManager.this.dismiss();
-		 * } });
-		 */
+		System.out.println("io: "+ io+ " type: "+((IOs)io).type);
+		/*for (AddressIdentifier ai : IO.getAddressIdentifiersOfType(io.type)) {
+			System.out.println("ai: "+ ai);
+		}*/
+		hwAddress.setAdapter(new AddressIdentifierAdapter(context,
+				android.R.layout.simple_spinner_dropdown_item, io, 
+				  IO.getAddressIdentifiersOfType(io.type)));
+		hwAddress.setSelection(io.address.getOrdinal());
 		return v;
 	}
 
 	@Override
 	public void onStart() {
-		// TODO Auto-generated method stub
 		super.onStart();
 		getDialog().setFeatureDrawableResource(Window.FEATURE_LEFT_ICON,
 				android.R.drawable.ic_input_add);
@@ -180,7 +141,7 @@ public class IODialogManager extends DialogFragment {
 			io.name = nameEdit.getText().toString();
 			changeIDupdate = true;
 		}
-		if (!io.address.equals((AddressIdentifier) hwAddress.getSelectedItem())) {
+		if (!io.address.equals(hwAddress.getSelectedItem())) {
 			io.address = (AddressIdentifier) hwAddress.getSelectedItem();
 			changeIDupdate = true;
 		}
@@ -228,6 +189,7 @@ public class IODialogManager extends DialogFragment {
 
 	}
 
+	@Override
 	public void onDismiss(DialogInterface dialog) {
 		super.onDismiss(dialog);
 		((ConfigActivity) getActivity()).adapter.notifyDataSetChanged();

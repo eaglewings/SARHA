@@ -133,13 +133,14 @@ public class ConditionDialog extends DialogFragment {
 		String title = "";
 		if (newCondition) {
 			switch (Condition.getType(condition)) {
+			case OPERATION:
+				title = "New Condition Operation";
+				break;
 			case AI:
 				title = "New Analog Input Condition";				
-				
 				break;
 			case DI:
 				title = "New Digital Input Condition";
-				
 				break;
 			default:
 				break;
@@ -151,6 +152,12 @@ public class ConditionDialog extends DialogFragment {
 				cbInverted.setChecked(false);
 			}
 			switch (Condition.getType(condition)) {
+			case OPERATION:
+				title = "Edit Condition Operation";
+				OperationCondition opc = (OperationCondition) condition;
+				spIo.setSelection(((ConditionOperationDialogSpinnerAdapter) spIo
+						.getAdapter()).getPosition(opc.getType()));
+				break;
 			case AI:
 				AnalogInCondition aic = (AnalogInCondition) condition;
 				title = "Edit Analog Input Condition";
@@ -186,6 +193,11 @@ public class ConditionDialog extends DialogFragment {
 			condition.setInverted(false);
 		}
 		switch (Condition.getType(condition)) {
+		case OPERATION:
+			OperationCondition opc = (OperationCondition) condition;
+			opc.setType((OperationType) spIo.getSelectedItem());
+			condition = opc;
+			break;
 		case AI:
 			AnalogInCondition aic = (AnalogInCondition) condition;
 			if (rbGreaterThan.isChecked()) {

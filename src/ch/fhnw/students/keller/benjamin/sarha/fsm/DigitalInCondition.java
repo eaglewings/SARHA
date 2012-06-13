@@ -14,7 +14,7 @@ public class DigitalInCondition extends Condition {
 	public String parse() {
 		String lua="";
 		if(di!=null){
-			lua= "("+di+")";
+			lua= "(kit.IO."+di+".merge==0)";
 		}
 		if(isInverted()){
 			lua="(not "+lua+")";

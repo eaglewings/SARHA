@@ -13,18 +13,30 @@ import ch.fhnw.students.keller.benjamin.sarha.fsm.Transition;
 
 	public static StateMachine stateMachine = getDummyStateMachine();
 	public static ArrayList<Config> configs = getDummyConfigs();
+	public static StateMachine currentWorkingStateMachine;
+	public static State currentWorkingState;
+	public static Transition currentWorkingTransition;
+	public static ArrayList<StateMachine> stateMachines = new ArrayList<StateMachine>();
+	static {
+		stateMachines.add(getDummyStateMachine());
+	}
 	
 	private static StateMachine getDummyStateMachine() {
 		stateMachine = new StateMachine();
 		stateMachine.add(new State(stateMachine, "State1"));
 		stateMachine.add(new State(stateMachine, "State2"));
-		for (State state : stateMachine) {
-			state.add(new Transition(state, "t1"));
-			state.add(new Transition(state, "t2"));
-		}
 		stateMachine.add(new State(stateMachine, "State3"));
 		stateMachine.add(new State(stateMachine, "State4"));
 		stateMachine.add(new State(stateMachine, "State5"));
+		for (State state : stateMachine.subList(0, 1)) {
+			Transition t1= new Transition(state, "t1");
+			Transition t2 = new Transition(state, "t2");
+			t1.setToState(stateMachine.get(stateMachine.indexOf(state)+1));
+			t2.setToState(stateMachine.get(stateMachine.indexOf(state)+2));
+			state.add(t1);
+			state.add(t2);
+		}
+		stateMachine.setInitialState(stateMachine.get(0));
 		return stateMachine;
 	}
 	
@@ -36,4 +48,6 @@ import ch.fhnw.students.keller.benjamin.sarha.fsm.Transition;
 	configs.get(0).add(new DigitalIn());
 	return configs;
 	}
+	
+	
 }

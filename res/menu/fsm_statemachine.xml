@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
     <item android:id="@+id/addstate" android:title="Add New State" android:titleCondensed="Add"></item>
-
+	<item android:id="@+id/parseStateMachine" android:title="Parse StateMachine and save to SD Card" android:titleCondensed="Parse Machine"></item>
+    
     
 
 </menu>

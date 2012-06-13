@@ -19,7 +19,7 @@ public class AddressIdentifierAdapter extends ArrayAdapter<AddressIdentifier> {
 	private Config config;
 	private IOs io;
 	public AddressIdentifierAdapter(Context context, int textViewResourceId, IOs io,
-			AddressIdentifier[] hwAddresses) {
+			ArrayList<AddressIdentifier> hwAddresses) {
 		super(context, textViewResourceId, hwAddresses);
 		// TODO Auto-generated constructor stub
 		this.context=context;

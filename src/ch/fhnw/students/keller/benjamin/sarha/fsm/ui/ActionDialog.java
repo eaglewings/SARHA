@@ -4,6 +4,7 @@ package ch.fhnw.students.keller.benjamin.sarha.fsm.ui;
 import java.util.ArrayList;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
@@ -18,16 +19,15 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.ToggleButton;
+import ch.fhnw.students.keller.benjamin.sarha.AppData;
 import ch.fhnw.students.keller.benjamin.sarha.R;
 import ch.fhnw.students.keller.benjamin.sarha.config.AddressIdentifier;
-import ch.fhnw.students.keller.benjamin.sarha.config.IO.AnalogOut;
 import ch.fhnw.students.keller.benjamin.sarha.config.Config;
-import ch.fhnw.students.keller.benjamin.sarha.config.IO.DigitalOut;
 import ch.fhnw.students.keller.benjamin.sarha.config.IO;
+import ch.fhnw.students.keller.benjamin.sarha.config.IO.AnalogOut;
+import ch.fhnw.students.keller.benjamin.sarha.config.IO.DigitalOut;
 import ch.fhnw.students.keller.benjamin.sarha.config.IOs;
 import ch.fhnw.students.keller.benjamin.sarha.fsm.Action;
-import ch.fhnw.students.keller.benjamin.sarha.fsm.AnalogOutAction;
-import ch.fhnw.students.keller.benjamin.sarha.fsm.DigitalOutAction;
 
 public class ActionDialog extends DialogFragment {
 	private Button btOk, btCancel;
@@ -108,7 +108,8 @@ public class ActionDialog extends DialogFragment {
 			public void onClick(View v) {
 				setValues();
 				if (newAction) {
-					//TODO process new Action;
+					AppData.currentWorkingTransition.addAction(action);
+					System.out.println("added");
 				}
 				ActionDialog.this.dismiss();
 			}
@@ -138,19 +139,17 @@ public class ActionDialog extends DialogFragment {
 		} else {
 			switch (Action.getType(action)) {
 			case AO:
-				AnalogOutAction aoa = (AnalogOutAction) action;
 				title = "Edit Analog Output Action";
-				sbValue.setProgress(aoa.getValue());
-				tvValue.setText(""+aoa.getValue());
+				sbValue.setProgress(action.getValue());
+				tvValue.setText(""+action.getValue());
 				spIo.setSelection(((ActionDialogSpinnerAdapter) spIo
-						.getAdapter()).getPosition(aoa.getAo()));
+						.getAdapter()).getPosition(action.getAddressIdentifier()));
 				break;
 			case DO:
 				title = "Edit Digital Output Action";
-				DigitalOutAction doa = (DigitalOutAction) action;
-				tbValue.setChecked(doa.getValue());
+				tbValue.setChecked(action.getValue()>0?true:false);
 				spIo.setSelection(((ActionDialogSpinnerAdapter) spIo
-						.getAdapter()).getPosition(doa.getDo()));
+						.getAdapter()).getPosition(action.getAddressIdentifier()));
 				break;
 			default:
 				break;
@@ -165,22 +164,25 @@ public class ActionDialog extends DialogFragment {
 	protected void setValues() {
 		switch (Action.getType(action)) {
 		case AO:
-			AnalogOutAction aoa = (AnalogOutAction) action;
-			aoa.setValue(sbValue.getProgress());
-			aoa.setAo((AnalogOut) ((IOs) spIo.getSelectedItem()).address);
-			action = aoa;
+			action.setValue(sbValue.getProgress());
+			action.setAddressIdentifier((AnalogOut) ((IOs) spIo.getSelectedItem()).address);
 			break;
 		case DO:
-			DigitalOutAction doa = (DigitalOutAction) action;
-			doa.setDo((DigitalOut) ((IOs) spIo.getSelectedItem()).address);
-			action = doa;
+			action.setValue(tbValue.isChecked()?1:0);
+			action.setAddressIdentifier((DigitalOut) ((IOs) spIo.getSelectedItem()).address);
 			break;
 		default:
 			break;
 		}
-		//action.view.update(null, null);
+		
 	}
 	
+	@Override
+	public void onDismiss(DialogInterface dialog) {
+		((TransitionActivity) context).actionAdapter.notifyDataSetChanged();
+		super.onDismiss(dialog);
+	}
+
 	class ActionDialogSpinnerAdapter extends BaseAdapter {
 		private ArrayList<IOs> ios = new ArrayList<IOs>();
 

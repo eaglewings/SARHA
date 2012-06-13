@@ -13,6 +13,7 @@ public class DigitalIn  extends IOs{
 		type=IO.Type.DI;
 	}
 
+	@Override
 	public boolean equals(Object o){
 		if( o instanceof DigitalIn){
 			DigitalIn di= (DigitalIn)o;

@@ -18,6 +18,30 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".fsm.ui.StateMachineManagerActivity" >
+            
+        </activity>
+        <activity
+            android:name=".fsm.ui.StateMachineActivity" >
+            
+        </activity>
+        <activity
+            android:name=".fsm.ui.StateActivity" >
+            
+        </activity>
+        <activity
+            android:name=".fsm.ui.TransitionActivity" >
+            
+        </activity>
+        <activity
+            android:name=".config.ui.ConfigManagerActivity" >
+            
+        </activity>
+        <activity
+            android:name=".config.ui.ConfigActivity" >
+            
+        </activity>
     </application>
-
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 </manifest>
