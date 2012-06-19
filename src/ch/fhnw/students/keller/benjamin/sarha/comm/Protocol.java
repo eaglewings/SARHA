@@ -38,25 +38,21 @@ public class Protocol {
 	}
 
 	ReceiveMode mode = ReceiveMode.COMMAND_MODE;
-	//@formatter:off
+	// @formatter:off
 	private static final String COMMAND_SEPARATOR = ";", S = COMMAND_SEPARATOR;
-	private static final String 
-								GET="get",
-								SET="set",
-								RET="ret",
-								ACK="ack",
-								NAK="nak",
+	private static final String GET = "get", 
+								SET = "set", 
+								ACK = "ack",
 								CONFIG = "config", 
-								NEW = "new", 
-								ID = "id",
-								FILE = "file", 
+								ID = "id", 
+								FILE = "file",
 								CONFIGCFG = "config.cfg", 
-								UPDATE = "update",
-								OFF = "off", 
+								UPDATE = "update", 
+								OFF = "off",
 								ON = "on", 
 								REMOTE = "remote", 
 								IO = "io";
-	//@formatter:on
+	// @formatter:on
 	protected static final long ACK_TIMEOUT = 2000;
 	private static final int COMMAND_LENGTH = 3;
 	private static final int MAX_COMMAND_LENGTH = 500;
@@ -77,13 +73,6 @@ public class Protocol {
 	public Protocol(BufferedInputStream in, BufferedOutputStream out) {
 		this.in = in;
 		this.out = out;
-		try {
-			this.out.write("hello world from Protocol".getBytes());
-			this.out.flush();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
 	}
 
 	public int getAddressValue(IOs io) {
@@ -137,8 +126,6 @@ public class Protocol {
 						ByteArrayOutputStream baos = new ByteArrayOutputStream();
 						sendCommand("" + C.ACK);
 						for (int i = 0; i < blocks; i++) {
-							// System.out.println("for block " + i +
-							// "of "+blocks+" blocks");
 							int checksum = 0;
 							databuffer = dataQueue.poll(DATA_WAIT_TIMEOUT,
 									TimeUnit.MILLISECONDS);
@@ -147,19 +134,11 @@ public class Protocol {
 									checksum += (0xFF & (short) databuffer[j]);
 
 								}
-								// System.out.println("checksum:" +
-								// checksum+"(byte) checksum & 0xFF:"+(byte)(checksum&0xFF)
-								// + " databuffer[BLOCKSIZE]:"
-								// + databuffer[BLOCKSIZE]);
 								if ((byte) (checksum & 0xFF) == databuffer[BLOCKSIZE]) {
 
 									if (i == blocks - 1
-											&& filesize % BLOCKSIZE != 0) {// The
-																			// last
-										// block is
-										// padded
-										// with
-										// zeros
+											&& filesize % BLOCKSIZE != 0) {
+										// The last block is padded with zeros
 										baos.write(Arrays.copyOfRange(
 												databuffer, 0, filesize
 														% BLOCKSIZE));
@@ -174,9 +153,7 @@ public class Protocol {
 									i--;
 									continue;
 								}
-
-							} else {
-								// System.out.println("databuffer==null!!!!");
+							} else {// databuffer is null
 								mode = ReceiveMode.COMMAND_MODE;
 								return null;
 							}
@@ -192,13 +169,10 @@ public class Protocol {
 				e.printStackTrace();
 				return null;
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} finally {
-				// System.out.println("finally");
 				dataQueue.clear();
 				mode = ReceiveMode.COMMAND_MODE;
 			}
@@ -208,7 +182,6 @@ public class Protocol {
 	}
 
 	public boolean getAck() {
-		System.out.println("Protocol.getAck enter");
 		if (!sendCommand(GET, ACK)) {
 			System.out.println("Protocol.getAck sendcommand failed");
 			return false;
@@ -237,15 +210,17 @@ public class Protocol {
 			sendCommand(SET, REMOTE, OFF);
 		}
 	}
-
+/**Writes bytes to the OutputStream and flushes it
+ * 
+ * @param buffer Buffer holding the data to be sent
+ * @return true if the data was successfully written to the OutputStream, false if an error occurs
+ */
 	private boolean send(byte[] buffer) {
-		System.out.println("Protocol.send length: " + buffer.length);
 		try {
 			out.write(buffer);
 			out.flush();
 			return true;
 		} catch (IOException e) {
-
 			e.printStackTrace();
 			return false;
 		}
@@ -258,13 +233,7 @@ public class Protocol {
 			command += args + S;
 		}
 		command += args[args.length - 1] + "\r\n";
-
-		System.out.println("Protocol.sendCommand: " + command);
 		return send(command.getBytes());
-	}
-
-	public boolean setAddress() {
-		return true;
 	}
 
 	private boolean sendObject(String command, Serializable obj) {
@@ -337,10 +306,8 @@ public class Protocol {
 		System.out.println("Protocol.waitAck enter");
 		try {
 			if (commandQueue.poll(ACK_TIMEOUT, TimeUnit.MILLISECONDS) == C.ACK) {
-				System.out.println("Protocol.waitAck return true");
 				return true;
 			} else {
-				System.out.println("Protocol.waitAck return false");
 				return false;
 			}
 		} catch (InterruptedException e) {
@@ -400,7 +367,9 @@ public class Protocol {
 						+ in.available());
 				in.read(commandBuffer, 0, COMMAND_LENGTH);
 				for (C c : C.values()) {
-					if ((new String(Arrays.copyOf(commandBuffer, COMMAND_LENGTH))).equals(c.toString())) {
+					if ((new String(
+							Arrays.copyOf(commandBuffer, COMMAND_LENGTH)))
+							.equals(c.toString())) {
 						command = c;
 						System.out
 								.println("Protocol.commandfilter Command recognized: "
@@ -428,14 +397,11 @@ public class Protocol {
 				}
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
 	private void parseCommand(C command, byte[] commandBuffer) {
-		System.out.println("Protocol.parseCommand " + command
-				+ "commandBuffer:" + new String(commandBuffer));
 		switch (command) {
 		case ACK:
 			try {
@@ -461,9 +427,6 @@ public class Protocol {
 				return;
 			}
 			break;
-		case GET:
-
-			break;
 		case RET:
 			String[] parts = new String(commandBuffer).split(S);
 			if (parts[1].equals(UPDATE)) {
@@ -472,7 +435,6 @@ public class Protocol {
 				for (int i = 0; i < adresses.size(); i++) {
 					deviceModel.setIOvalue(adresses.get(i),
 							Integer.parseInt(parts[i]));
-
 				}
 
 			} else {
@@ -494,10 +456,6 @@ public class Protocol {
 				}
 			}
 			break;
-		case SET:
-
-			break;
-
 		default:
 			break;
 		}

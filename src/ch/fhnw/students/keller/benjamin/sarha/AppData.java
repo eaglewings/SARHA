@@ -2,6 +2,7 @@ package ch.fhnw.students.keller.benjamin.sarha;
 
 import java.util.ArrayList;
 
+import ch.fhnw.students.keller.benjamin.sarha.comm.Device;
 import ch.fhnw.students.keller.benjamin.sarha.config.Config;
 import ch.fhnw.students.keller.benjamin.sarha.config.DigitalIn;
 import ch.fhnw.students.keller.benjamin.sarha.config.DigitalOut;
@@ -17,6 +18,7 @@ import ch.fhnw.students.keller.benjamin.sarha.fsm.Transition;
 	public static State currentWorkingState;
 	public static Transition currentWorkingTransition;
 	public static ArrayList<StateMachine> stateMachines = new ArrayList<StateMachine>();
+	public static ArrayList<Device> devices;
 	static {
 		stateMachines.add(getDummyStateMachine());
 	}

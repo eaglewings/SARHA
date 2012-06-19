@@ -5,12 +5,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
+import android.widget.ImageView;
 import ch.fhnw.students.keller.benjamin.sarha.config.ui.ConfigManagerActivity;
 import ch.fhnw.students.keller.benjamin.sarha.fsm.ui.StateMachineManagerActivity;
 
 public class SARHAActivity extends Activity {
-	private Button btStateMachine, btConfig;
+	private ImageView ivStatemachine, ivConfig, ivSettings, ivRemote;
 	
 	
 	
@@ -20,11 +20,13 @@ public class SARHAActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         
-        btStateMachine = (Button) findViewById(R.id.button1);
-        btConfig = (Button) findViewById(R.id.button2);
+        ivRemote = (ImageView) findViewById(R.id.ivRemote);
+        ivConfig = (ImageView) findViewById(R.id.ivConfig);
+        ivStatemachine = (ImageView) findViewById(R.id.ivStatemachine);
+        ivSettings = (ImageView) findViewById(R.id.ivSettings);
         
         
-        btStateMachine.setOnClickListener(new OnClickListener() {
+        ivStatemachine.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
@@ -33,7 +35,7 @@ public class SARHAActivity extends Activity {
 			}
 		});
         
-        btConfig.setOnClickListener(new OnClickListener() {
+        ivConfig.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
