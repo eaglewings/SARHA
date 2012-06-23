@@ -25,7 +25,7 @@ public class ConfigActivity extends FragmentActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		int position =getIntent().getExtras().getInt("ConfigIndex");
-		config=AppData.configs.get(position);
+		config=AppData.data.configs.get(position);
 		adapter = new ConfigAdapter(this, config);
 		
 		setContentView(R.layout.config_activity_config);
@@ -69,6 +69,10 @@ public class ConfigActivity extends FragmentActivity {
 		}
 	}
 
-	
+	@Override
+	protected void onPause() {
+		AppData.saveAppData();
+		super.onPause();
+	}
 	
 }

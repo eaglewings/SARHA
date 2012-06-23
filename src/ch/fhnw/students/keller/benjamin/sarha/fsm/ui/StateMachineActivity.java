@@ -148,4 +148,9 @@ public class StateMachineActivity extends Activity {
 		return true;
 	}
 
+	@Override
+	protected void onPause() {
+		AppData.saveAppData();
+		super.onPause();
+	}
 }

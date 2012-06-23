@@ -34,7 +34,7 @@ public class ConfigManagerActivity extends FragmentActivity {
 		setContentView(R.layout.config_activity_configmanager);
 		
 		ListView list = (ListView) findViewById(R.id.listView1);
-		adapter= new ConfigManagerAdapter(this, AppData.configs);
+		adapter= new ConfigManagerAdapter(this, AppData.data.configs);
 		list.setAdapter(adapter);
 		
 		list.setOnItemClickListener(new OnItemClickListener() {
@@ -135,5 +135,9 @@ public class ConfigManagerActivity extends FragmentActivity {
             }
         }
 	
-
+	@Override
+	protected void onPause() {
+		AppData.saveAppData();
+		super.onPause();
+	}
 }

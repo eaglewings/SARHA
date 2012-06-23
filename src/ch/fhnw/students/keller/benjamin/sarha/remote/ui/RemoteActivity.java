@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import ch.fhnw.students.keller.benjamin.sarha.AppData;
 import ch.fhnw.students.keller.benjamin.sarha.R;
 import ch.fhnw.students.keller.benjamin.sarha.comm.DeviceModel;
 import ch.fhnw.students.keller.benjamin.sarha.comm.EasyComm;
@@ -17,7 +18,7 @@ import ch.fhnw.students.keller.benjamin.sarha.comm.Protocol;
 import ch.fhnw.students.keller.benjamin.sarha.config.Config;
 import ch.fhnw.students.keller.benjamin.sarha.config.IO;
 
-public class RemoteAppActivity extends Activity implements Observer {
+public class RemoteActivity extends Activity implements Observer {
 	private Config cfg = IO.defaultConfig();
 	private Button btProg, btDebug;
 	private DeviceModel device = new DeviceModel(cfg);
@@ -33,15 +34,9 @@ public class RemoteAppActivity extends Activity implements Observer {
 		setContentView(R.layout.main);
 
 		device.addObserver(this);
-		System.out.println("before Viewstock creation");
 		comm = new EasyComm();
 		protocol= comm.connect(new InetSocketAddress("192.168.0.105", 2000));
 		viewStock = new ViewStock(this, device, protocol);
-		/*lv = (ListView) findViewById(R.id.listView1);
-
-		adapter = new RemoteAdapter(this, device);
-
-		lv.setAdapter(adapter);*/
 		
 		lla = (LinearLayout) findViewById(R.id.linearLayout3);
 		viewStock.addViews(lla);
@@ -124,5 +119,9 @@ public class RemoteAppActivity extends Activity implements Observer {
 		super.onDestroy();
 		comm.disconnect();
 	}
-
+	@Override
+	protected void onPause() {
+		AppData.saveAppData();
+		super.onPause();
+	}
 }

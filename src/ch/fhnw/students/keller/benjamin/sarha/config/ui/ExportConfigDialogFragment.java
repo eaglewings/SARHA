@@ -30,7 +30,7 @@ public class ExportConfigDialogFragment extends DialogFragment {
 		 LinearLayout v = new LinearLayout(this.getActivity());
 		 v.setOrientation(LinearLayout.VERTICAL);
 		 final Spinner s = new Spinner(this.getActivity());
-		 s.setAdapter(new ArrayAdapter<Config>(this.getActivity(), android.R.layout.simple_spinner_item,android.R.id.text1, AppData.configs));
+		 s.setAdapter(new ArrayAdapter<Config>(this.getActivity(), android.R.layout.simple_spinner_item,android.R.id.text1, AppData.data.configs));
 		 v.addView(s);
 		 final EditText e = new EditText(this.getActivity());
 		 e.setText("");

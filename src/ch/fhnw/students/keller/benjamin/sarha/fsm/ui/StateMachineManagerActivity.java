@@ -25,7 +25,7 @@ public class StateMachineManagerActivity extends Activity {
 		setContentView(R.layout.fsm_activity_statemachinemanager);
 		
 		ListView list = (ListView) findViewById(R.id.listView1);
-		adapter= new StateMachineManagerAdapter(this, AppData.stateMachines);
+		adapter= new StateMachineManagerAdapter(this, AppData.data.stateMachines);
 		list.setAdapter(adapter);
 		
 		list.setOnItemClickListener(new OnItemClickListener() {
@@ -45,5 +45,10 @@ public class StateMachineManagerActivity extends Activity {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.fsm_statemachinemanager, menu);
 		return true;
+	}
+	@Override
+	protected void onPause() {
+		AppData.saveAppData();
+		super.onPause();
 	}
 }

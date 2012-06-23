@@ -12,7 +12,7 @@ public class Device implements Serializable{
 	
 	private static final long serialVersionUID = 1L;
 	private String name;
-	private byte[] idbytes = new byte[3];
+	private String boardId;
 	private InetSocketAddress address;
 	private DeviceState state=DeviceState.UNKNOWN;
 	/**
@@ -31,13 +31,13 @@ public class Device implements Serializable{
 		this(name);
 		this.address=address;
 	}
-	public Device(String name, byte[] idbytes, InetSocketAddress address){
+	public Device(String name, String boardId, InetSocketAddress address){
 		this(name, address);
-		this.idbytes=idbytes;
+		this.boardId=boardId;
 	}
 	
-	public Device(String name, byte[] idbytes, InetSocketAddress address, DeviceState state){
-		this(name,idbytes,address);
+	public Device(String name, String boardId, InetSocketAddress address, DeviceState state){
+		this(name,boardId,address);
 		this.state=state;
 	}
 	
@@ -75,15 +75,15 @@ public class Device implements Serializable{
 	public String toString(){
 		return name;
 	}
-	public byte[] getIdBytes() {
+	public String getBoardId() {
 		
-		return idbytes;
+		return boardId;
 	}
 	
 	public boolean equals(Object obj){
 		if (obj instanceof Device){
 			Device dev= (Device) obj;
-		return Arrays.equals(dev.getIdBytes(), idbytes);
+		return boardId.equals(dev.getBoardId());
 	}
 		return false;
 	}

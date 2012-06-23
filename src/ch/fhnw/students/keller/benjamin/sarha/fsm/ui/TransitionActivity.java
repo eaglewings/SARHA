@@ -197,4 +197,9 @@ public class TransitionActivity extends FragmentActivity {
 		actionAdapter.notifyDataSetChanged();
 	}
 
+	@Override
+	protected void onPause() {
+		AppData.saveAppData();
+		super.onPause();
+	}
 }

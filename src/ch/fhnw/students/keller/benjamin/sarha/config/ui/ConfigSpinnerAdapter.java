@@ -9,7 +9,7 @@ public class ConfigSpinnerAdapter extends ArrayAdapter<Config> {
 
 	public ConfigSpinnerAdapter(Context context) {
 		super(context, android.R.layout.simple_spinner_item,
-				android.R.id.text1, AppData.configs);
+				android.R.id.text1, AppData.data.configs);
 	}
 
 }

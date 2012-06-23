@@ -128,4 +128,9 @@ public class StateActivity extends Activity{
 		
 		stateAdapter.notifyDataSetChanged();
 	}
+	@Override
+	protected void onPause() {
+		AppData.saveAppData();
+		super.onPause();
+	}
 }
