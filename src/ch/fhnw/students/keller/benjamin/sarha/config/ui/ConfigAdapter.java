@@ -60,18 +60,6 @@ public class ConfigAdapter extends BaseAdapter {
 			}
 
 		}
-		/*for (IO.Type type : IO.Type.values()) {
-			if (position == 0) {
-				return IO.typeHeaders.get(type);
-			}
-			if (config.count(type) >= position) {
-				return config.ios.get(type).get(position - 1);
-			} else {
-				position = position - config.countH(type);
-			}
-
-		}*/
-
 		return null;
 	}
 	@Override
@@ -90,7 +78,6 @@ public class ConfigAdapter extends BaseAdapter {
 	}
 	@Override
 	public long getItemId(int position) {
-		// TODO Auto-generated method stub
 		return position;
 	}
 
@@ -108,7 +95,6 @@ public class ConfigAdapter extends BaseAdapter {
 				convertView = inflater.inflate(R.layout.config_listviewitem_io, null);
 				System.out.println("convertview" +ConfigAdapter.this.position);
 				convertView.setOnTouchListener(holder.delListener);
-				//convertView.setOnClickListener(holder.clickListener);
 				holder.textView = (TextView) convertView
 						.findViewById(R.id.textView1);
 				

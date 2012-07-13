@@ -8,7 +8,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnLongClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
@@ -52,7 +51,6 @@ public class TransitionActivity extends FragmentActivity {
 		fsm = AppData.currentWorkingStateMachine;
 		state=AppData.currentWorkingState;
 		transition= AppData.currentWorkingTransition;
-
 		ListView listViewActions = (ListView) findViewById(R.id.listViewActions);
 		TextView txtViewFromState = (TextView) findViewById(R.id.textViewFromState);
 		TextView txtViewTransition = (TextView) findViewById(R.id.textViewTransition);
@@ -60,7 +58,7 @@ public class TransitionActivity extends FragmentActivity {
 		TreeView conditionView = (TreeView) findViewById(R.id.conditionView);
 		txtViewFromState.setText(state.getStateName());
 		txtViewTransition.setText(transition.toString());
-		conditionView.setTree(transition.condition);
+		conditionView.setAdapter(new ConditionAdapter(transition.condition, this));
 
 		mTabHost = (TabHost) findViewById(android.R.id.tabhost);
 		mTabHost.setup();
@@ -87,8 +85,9 @@ public class TransitionActivity extends FragmentActivity {
 		listViewActions.setAdapter(actionAdapter);
 
 		adapter = new ArrayAdapter<State>(this,
-				android.R.layout.simple_spinner_dropdown_item,
+				android.R.layout.simple_spinner_item,
 				android.R.id.text1, values);
+		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		spinner.setAdapter(adapter);
 
 		spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
@@ -151,7 +150,7 @@ public class TransitionActivity extends FragmentActivity {
 		Condition condition;
 		Condition parent = (Condition) transition.condition.getSelectedNode();
 		if (parent == null) {
-			parent = (Condition) transition.condition.rootNode;
+			parent = (Condition) transition.condition.getRoot();
 		}
 		switch (type) {
 		case OPERATION:
@@ -165,19 +164,7 @@ public class TransitionActivity extends FragmentActivity {
 			break;
 		default:
 			return;
-		}
-		//condition.view.setLongClickable(true);
-		condition.view.setOnLongClickListener(new OnLongClickListener() {
-
-			@Override
-			public boolean onLongClick(View v) {
-				DialogFragment newFragment = new ConditionDialog(
-						TransitionActivity.this,
-						(Condition) ((ConditionView) v).node, false);
-				newFragment.show(getSupportFragmentManager(), "dialog");
-				return true;
-			}
-		});
+		}		
 		if (parent.canHaveMoreChildren()) {
 			DialogFragment newFragment = new ConditionDialog(this, condition,
 					true);

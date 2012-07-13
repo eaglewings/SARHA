@@ -34,7 +34,7 @@ public class IODialogManager extends DialogFragment {
 		super();
 	}
 
-	public IODialogManager(Context context,IOs item, boolean newIO) {
+	public IODialogManager(Context context, IOs item, boolean newIO) {
 		super();
 		this.io = item;
 		this.newIO = newIO;
@@ -53,27 +53,20 @@ public class IODialogManager extends DialogFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		getDialog().requestWindowFeature(Window.FEATURE_LEFT_ICON);
-
-		String title = new String();
-		if (newIO) {
-			title = "New " + IO.typeDescriptors.get(io.type);
-		} else {
-			title = "Edit " + IO.typeDescriptors.get(io.type);
-		}
-
 		View v = null;
+
 		switch (io.type) {
 		case AI:
-			v = inflater.inflate(R.layout.config_dialog_analog, container, false);
+			v = inflater.inflate(R.layout.config_dialog_analog, container,
+					false);
 			scaleEdit = (EditText) v.findViewById(R.id.scale);
-
 			unitEdit = (EditText) v.findViewById(R.id.unit);
 			scaleEdit.setText(((AnalogIn) io).scale);
 			unitEdit.setText(((AnalogIn) io).unit);
 			break;
 		case AO:
-			v = inflater.inflate(R.layout.config_dialog_analog, container, false);
+			v = inflater.inflate(R.layout.config_dialog_analog, container,
+					false);
 			scaleEdit = (EditText) v.findViewById(R.id.scale);
 
 			unitEdit = (EditText) v.findViewById(R.id.unit);
@@ -82,7 +75,8 @@ public class IODialogManager extends DialogFragment {
 			break;
 		case DI:
 		case DO:
-			v = inflater.inflate(R.layout.config_dialog_digital, container, false);
+			v = inflater.inflate(R.layout.config_dialog_digital, container,
+					false);
 			break;
 		default:
 			break;
@@ -116,23 +110,20 @@ public class IODialogManager extends DialogFragment {
 				IODialogManager.this.dismiss();
 			}
 		});
-		getDialog().setTitle(title);
-		System.out.println("io: "+ io+ " type: "+((IOs)io).type);
-		/*for (AddressIdentifier ai : IO.getAddressIdentifiersOfType(io.type)) {
-			System.out.println("ai: "+ ai);
-		}*/
-		hwAddress.setAdapter(new AddressIdentifierAdapter(context,
-				android.R.layout.simple_spinner_dropdown_item, io, 
-				  IO.getAddressIdentifiersOfType(io.type)));
-		hwAddress.setSelection(io.address.getOrdinal());
-		return v;
-	}
 
-	@Override
-	public void onStart() {
-		super.onStart();
-		getDialog().setFeatureDrawableResource(Window.FEATURE_LEFT_ICON,
-				android.R.drawable.ic_input_add);
+		hwAddress.setAdapter(new AddressIdentifierAdapter(context,
+				android.R.layout.simple_spinner_dropdown_item, io, IO
+						.getAddressIdentifiersOfType(io.type)));
+		hwAddress.setSelection(io.address.getOrdinal());
+
+		String title = new String();
+		if (newIO) {
+			title = "New " + IO.typeDescriptors.get(io.type);
+		} else {
+			title = "Edit " + IO.typeDescriptors.get(io.type);
+		}
+		getDialog().setTitle(title);
+		return v;
 	}
 
 	protected void setValues() {
@@ -160,30 +151,28 @@ public class IODialogManager extends DialogFragment {
 			break;
 		case AO:
 			AnalogOut ao = (AnalogOut) io;
-			if(ao.scale.equals(scaleEdit.getText().toString())){
+			if (ao.scale.equals(scaleEdit.getText().toString())) {
 				ao.scale = scaleEdit.getText().toString();
 				changeIDupdate = true;
 			}
-			if(ao.unit.equals(unitEdit.getText().toString())){
-			ao.unit = unitEdit.getText().toString();
+			if (ao.unit.equals(unitEdit.getText().toString())) {
+				ao.unit = unitEdit.getText().toString();
 				changeIDupdate = true;
 			}
 			io = ao;
 			break;
 		case DI:
-			// v = inflater.inflate(R.layout.dialog_di, container, false);
 			break;
 		case DO:
-			// v = inflater.inflate(R.layout.dialog_do, container, false);
 			break;
 		default:
 			break;
 		}
 		if (newIO) {
-			changeIDupdate=true;
+			changeIDupdate = true;
 			((ConfigActivity) getActivity()).config.add(io);
 		}
-		if (changeIDupdate){
+		if (changeIDupdate) {
 			config.setChangeId();
 		}
 

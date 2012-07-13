@@ -34,6 +34,12 @@ public class AppData implements Serializable{
 
 	private static final String FILENAME_APPDATA = "SARHA_APPDATA";
 
+	public static final String APPLICATION_FOLDER = "Sarha";
+
+	public static final String CONFIGFOLDER = "Configs";
+
+	public static final String STATEMACHINEFOLDER = "Statemachines";
+
 	public static StateMachine currentWorkingStateMachine;
 	public static State currentWorkingState;
 	public static Transition currentWorkingTransition;

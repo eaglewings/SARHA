@@ -31,7 +31,7 @@ public class RemoteActivity extends Activity implements Observer {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.main);
+		setContentView(R.layout.remote_activity);
 
 		device.addObserver(this);
 		comm = new EasyComm();

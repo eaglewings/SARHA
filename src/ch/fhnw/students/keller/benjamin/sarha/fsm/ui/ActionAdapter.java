@@ -3,9 +3,11 @@ package ch.fhnw.students.keller.benjamin.sarha.fsm.ui;
 import java.util.ArrayList;
 
 import android.content.Context;
+import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
@@ -17,17 +19,21 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 import ch.fhnw.students.keller.benjamin.sarha.AppData;
 import ch.fhnw.students.keller.benjamin.sarha.R;
+import ch.fhnw.students.keller.benjamin.sarha.config.IO;
 import ch.fhnw.students.keller.benjamin.sarha.fsm.Action;
+import ch.fhnw.students.keller.benjamin.sarha.fsm.Condition;
 import ch.fhnw.students.keller.benjamin.sarha.fsm.Action.ActionType;
 
 public class ActionAdapter extends BaseAdapter {
 	private ArrayList<ArrayList<Action>> actions;
 	private LayoutInflater inflater;
-
+	private Context context;
+	
 	public ActionAdapter(Context context, ArrayList<ArrayList<Action>> actions) {
 		this.actions = actions;
 		inflater = (LayoutInflater) context
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		this.context= context;
 	}
 
 	@Override
@@ -74,53 +80,59 @@ public class ActionAdapter extends BaseAdapter {
 	@Override
 	public View getView(int pos, View convertView, ViewGroup parent) {
 		ViewHolder holder = new ViewHolder();
-		Action action = (Action) getItem(pos);
+		final Action action = (Action) getItem(pos);
 		holder.action = action;
 		View v = convertView;
 		System.out.println(action);
 		switch (Action.ActionType.values()[getItemViewType(pos)]) {
 		case AO:
-			if(v==null){
-			v = inflater.inflate(R.layout.fsm_listviewitem_action_analog, null);
+			if (v == null) {
+				v = inflater.inflate(R.layout.fsm_listviewitem_action_analog,
+						null);
 			}
-			 holder.sbValue = (SeekBar) v.findViewById(R.id.sbValue);
-			 holder.tvValue = (TextView) v.findViewById(R.id.tvValue);
-			 holder.btDelete = (Button) v.findViewById(R.id.btDelete);
-			 holder.tvName = (TextView) v.findViewById(R.id.tvName);
-			 holder.sbValue.setOnSeekBarChangeListener( holder.sbChangeListener);
-			 holder.btDelete.setOnClickListener( holder.btDeleteClickListener);
-			 holder.sbValue.setProgress(action.getValue());
-			 holder.tvValue.setText("" + action.getValue());
+			holder.sbValue = (SeekBar) v.findViewById(R.id.sbValue);
+			holder.tvValue = (TextView) v.findViewById(R.id.tvValue);
+			holder.btDelete = (Button) v.findViewById(R.id.btDelete);
+			holder.tvName = (TextView) v.findViewById(R.id.tvName);
+			holder.sbValue.setOnSeekBarChangeListener(holder.sbChangeListener);
+			holder.btDelete.setOnClickListener(holder.btDeleteClickListener);
+			holder.sbValue.setProgress(action.getValue());
+			holder.tvValue.setText("" + action.getValue());
 			break;
 		case DO:
-			if(v==null){
-			v = inflater
-					.inflate(R.layout.fsm_listviewitem_action_digital, null);
+			if (v == null) {
+				v = inflater.inflate(R.layout.fsm_listviewitem_action_digital,
+						null);
 			}
-			 holder.tbValue = (ToggleButton) v.findViewById(R.id.tbValue);
-			 holder.tvValue = (TextView) v.findViewById(R.id.tvValue);
-			 holder.btDelete = (Button) v.findViewById(R.id.btDelete);
-			 holder.tvName = (TextView) v.findViewById(R.id.tvName);
-			 holder.btDelete.setOnClickListener( holder.btDeleteClickListener);
-			 holder.tbValue
-					.setOnCheckedChangeListener( holder.tbCheckedChangedListener);
-
-			
-
-			 holder.tbValue.setChecked( action.getValue() == 1 ? true
-					: false);
-
+			holder.tbValue = (ToggleButton) v.findViewById(R.id.tbValue);
+			holder.tvValue = (TextView) v.findViewById(R.id.tvValue);
+			holder.btDelete = (Button) v.findViewById(R.id.btDelete);
+			holder.tvName = (TextView) v.findViewById(R.id.tvName);
+			holder.btDelete.setOnClickListener(holder.btDeleteClickListener);
+			holder.tbValue
+					.setOnCheckedChangeListener(holder.tbCheckedChangedListener);
+			holder.tbValue.setChecked(action.getValue() == 1 ? true : false);
 			break;
 		}
-		
-		 holder.tvName.setText(action.getAddressIdentifier().toString());
-		 v.setTag(holder);
+
+		holder.tvName.setText(IO.getName(action.getAddressIdentifier()));
+		v.setOnLongClickListener(new OnLongClickListener() {
+
+			@Override
+			public boolean onLongClick(View v) {
+				DialogFragment newFragment = new ActionDialog(context,
+						action, false);
+				newFragment.show(((TransitionActivity)context).getSupportFragmentManager(), "dialog");
+				return true;
+			}
+
+		});
+		v.setTag(holder);
 		return v;
 	}
 
 	@Override
 	public void notifyDataSetChanged() {
-		// TODO Auto-generated method stub
 		super.notifyDataSetChanged();
 	}
 
@@ -153,7 +165,6 @@ public class ActionAdapter extends BaseAdapter {
 			@Override
 			public void onClick(View v) {
 				AppData.currentWorkingTransition.removeAction(action);
-
 			}
 		};
 		public OnCheckedChangeListener tbCheckedChangedListener = new OnCheckedChangeListener() {

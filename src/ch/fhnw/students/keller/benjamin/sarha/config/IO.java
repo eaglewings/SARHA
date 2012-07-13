@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
 
+import ch.fhnw.students.keller.benjamin.sarha.AppData;
+
 public class IO implements Serializable {
 
 	/**
@@ -128,6 +130,7 @@ public class IO implements Serializable {
 		public AddressIdentifier[] getValues() {
 			return AnalogIn.values();
 		}
+
 	}
 
 	public enum Digital {
@@ -146,6 +149,15 @@ public class IO implements Serializable {
 		public String getString() {
 			return symbol;
 		}
+	}
+	
+	public static String getName(AddressIdentifier ai) {
+		Config config = AppData.currentWorkingStateMachine.getConfig();
+		if(config==null){
+			config=IO.defaultConfig();
+		}
+		config.getIOName(ai);
+		return config.getIOName(ai);
 	}
 
 	public static ArrayList<AddressIdentifier> getAddressIdentifiersOfType(IO.Type type) {

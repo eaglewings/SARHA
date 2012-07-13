@@ -16,6 +16,7 @@ import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.Spinner;
 import android.widget.TextView;
+import ch.fhnw.students.keller.benjamin.sarha.AppData;
 import ch.fhnw.students.keller.benjamin.sarha.R;
 import ch.fhnw.students.keller.benjamin.sarha.config.Config;
 import ch.fhnw.students.keller.benjamin.sarha.config.IO;
@@ -62,7 +63,7 @@ public class ConditionDialog extends DialogFragment {
 		super();
 		this.condition = condition;
 		this.context = context;
-		config = IO.defaultConfig();
+		config = AppData.currentWorkingStateMachine.getConfig();
 		this.newCondition = newCondition;
 	}
 
@@ -70,26 +71,23 @@ public class ConditionDialog extends DialogFragment {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setStyle(DialogFragment.STYLE_NORMAL, 0);
-
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		getDialog().requestWindowFeature(Window.FEATURE_LEFT_ICON);
-
-		System.out.println("onCreateView: " + Condition.getType(condition));
 		View v = null;
 		switch (Condition.getType(condition)) {
 		case OPERATION:
-			v = inflater.inflate(R.layout.fsm_dialog_condition_operation, container,
-					false);
+			v = inflater.inflate(R.layout.fsm_dialog_condition_operation,
+					container, false);
 			spIo = (Spinner) v.findViewById(R.id.spIo);
 			spIo.setAdapter(new ConditionOperationDialogSpinnerAdapter());
 			break;
 		case AI:
-			v = inflater.inflate(R.layout.fsm_dialog_condition_analog, container,
-					false);
+			v = inflater.inflate(R.layout.fsm_dialog_condition_analog,
+					container, false);
 			sbValue = (SeekBar) v.findViewById(R.id.sbValue);
 			sbValue.setOnSeekBarChangeListener(sbChangeListener);
 			rbGreaterThan = (RadioButton) v.findViewById(R.id.rbGreaterThan);
@@ -97,14 +95,16 @@ public class ConditionDialog extends DialogFragment {
 			tvValue = (TextView) v.findViewById(R.id.tvValue);
 			rbGreaterThan.setChecked(true);
 			spIo = (Spinner) v.findViewById(R.id.spIo);
-			spIo.setAdapter(new IoDialogSpinnerAdapter(context, config, IO.Type.AI));
+			spIo.setAdapter(new IoDialogSpinnerAdapter(context, config,
+					IO.Type.AI));
 			tvValue.setText("" + sbValue.getProgress());
 			break;
 		case DI:
-			v = inflater.inflate(R.layout.fsm_dialog_condition_digital, container,
-					false);
+			v = inflater.inflate(R.layout.fsm_dialog_condition_digital,
+					container, false);
 			spIo = (Spinner) v.findViewById(R.id.spIo);
-			spIo.setAdapter(new IoDialogSpinnerAdapter(context, config, IO.Type.DI));
+			spIo.setAdapter(new IoDialogSpinnerAdapter(context, config,
+					IO.Type.DI));
 			break;
 		default:
 			break;
@@ -112,15 +112,17 @@ public class ConditionDialog extends DialogFragment {
 		btOk = (Button) v.findViewById(R.id.btOk);
 		btCancel = (Button) v.findViewById(R.id.btCancel);
 		cbInverted = (CheckBox) v.findViewById(R.id.cbInverted);
-		
+
 		btOk.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				if(checkValues()){
 				setValues();
 				if (newCondition) {
 					condition.getTree().addNode(condition);
 				}
 				ConditionDialog.this.dismiss();
+				}
 			}
 		});
 		btCancel.setOnClickListener(new OnClickListener() {
@@ -137,7 +139,7 @@ public class ConditionDialog extends DialogFragment {
 				title = "New Condition Operation";
 				break;
 			case AI:
-				title = "New Analog Input Condition";				
+				title = "New Analog Input Condition";
 				break;
 			case DI:
 				title = "New Digital Input Condition";
@@ -167,15 +169,15 @@ public class ConditionDialog extends DialogFragment {
 					rbLessThan.setChecked(true);
 				}
 				sbValue.setProgress(aic.getValue());
-				tvValue.setText(""+aic.getValue());
-				spIo.setSelection(((IoDialogSpinnerAdapter) spIo
-						.getAdapter()).getPosition(aic.getAi()));
+				tvValue.setText("" + aic.getValue());
+				spIo.setSelection(((IoDialogSpinnerAdapter) spIo.getAdapter())
+						.getPosition(aic.getAi()));
 				break;
 			case DI:
 				title = "Edit Digital Input Condition";
 				DigitalInCondition dic = (DigitalInCondition) condition;
-				spIo.setSelection(((IoDialogSpinnerAdapter) spIo
-						.getAdapter()).getPosition(dic.getDi()));
+				spIo.setSelection(((IoDialogSpinnerAdapter) spIo.getAdapter())
+						.getPosition(dic.getDi()));
 				break;
 			default:
 				break;
@@ -185,11 +187,17 @@ public class ConditionDialog extends DialogFragment {
 		return v;
 	}
 
-	protected void setValues() {
-		if(cbInverted.isChecked()){
-			condition.setInverted(true);
+	protected boolean checkValues() {
+		if (spIo.getSelectedItem() == null) {
+			return false;
 		}
-		else{
+		return true;
+	}
+
+	protected void setValues() {
+		if (cbInverted.isChecked()) {
+			condition.setInverted(true);
+		} else {
 			condition.setInverted(false);
 		}
 		switch (Condition.getType(condition)) {
@@ -217,12 +225,12 @@ public class ConditionDialog extends DialogFragment {
 		default:
 			break;
 		}
-		condition.view.update(null, null);
+		condition.getTree().dataSetChanged();
 	}
 
-	
 	class ConditionOperationDialogSpinnerAdapter extends BaseAdapter {
 		OperationType[] types = OperationCondition.OperationType.values();
+
 		@Override
 		public int getCount() {
 			return types.length;
@@ -230,10 +238,9 @@ public class ConditionDialog extends DialogFragment {
 
 		@Override
 		public Object getItem(int position) {
-			try{
+			try {
 				return types[position];
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 			}
 			return null;
 		}
@@ -257,10 +264,11 @@ public class ConditionDialog extends DialogFragment {
 			tv.setText(types[position].name());
 			return v;
 		}
-		public int getPosition(OperationType type){
+
+		public int getPosition(OperationType type) {
 			return type.ordinal();
 		}
 
 	}
-	
+
 }

@@ -20,6 +20,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
+import android.widget.Toast;
 import ch.fhnw.students.keller.benjamin.sarha.AppData;
 import ch.fhnw.students.keller.benjamin.sarha.R;
 import ch.fhnw.students.keller.benjamin.sarha.config.Config;
@@ -55,6 +56,11 @@ public class ConfigManagerActivity extends FragmentActivity {
 		
 		
 	}
+	@Override
+	protected void onResume() {
+		adapter.notifyDataSetChanged();
+		super.onResume();
+	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -65,15 +71,20 @@ public class ConfigManagerActivity extends FragmentActivity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		if (item.getItemId() == R.id.menuitemnewconfig) {
+		switch (item.getItemId()) {
+		case  R.id.menuitemnewconfig:
 			showMyDialog(item.getItemId());
-			return true;
-		} else if (item.getItemId() == R.id.menuitemexportconfig) {
+			break;
+		case  R.id.menuitemexportconfig:
 			showMyDialog(item.getItemId());
-			return true;
-		} else {
+			break;
+		case  R.id.menuitemimportconfig:
+			showMyDialog(item.getItemId());
+			break;
+		default:
 			return super.onOptionsItemSelected(item);
 		}
+		return true;
 	}
 	
 	void showMyDialog(int id) {
@@ -82,7 +93,6 @@ public class ConfigManagerActivity extends FragmentActivity {
 			newFragment = NewConfigDialogFragment.newInstance();
 		} else if (id == R.id.menuitemexportconfig) {
 			newFragment = ExportConfigDialogFragment.newInstance();
-			Log.d("export", "export");
 		}
 	    if(newFragment!=null){
 	    newFragment.show(getSupportFragmentManager(), "dialog");
@@ -101,37 +111,39 @@ public class ConfigManagerActivity extends FragmentActivity {
 	}
 
 	public void doExportConfigPositiveClick(String string, Object selectedItem) {
-		Log.d("managerApp", "doexport");
-			
 		Config config = (Config) selectedItem;
 		    File root = Environment.getExternalStorageDirectory();
-		    File exportfile = new File(root, config.name+".cfg");
+		    File folder = new File(root.getAbsolutePath()+"/"+AppData.APPLICATION_FOLDER+"/"+AppData.CONFIGFOLDER +"/");
+		    folder.mkdirs();
+		    File exportfile = new File(folder, string);
 		    ObjectOutputStream outputStream = null;
 		    if (root.canWrite()){
-		    	Log.d("managerApp", "can write to: "+exportfile);
-		        try {
+		    	try {
 					outputStream = new ObjectOutputStream(new FileOutputStream(exportfile));
 					outputStream.writeObject(config);
 		        } catch (FileNotFoundException e) {
-		        	Log.d("managerApp", "error1");
-					e.printStackTrace();
+		        	e.printStackTrace();
+		        	Toast.makeText(this, "Sorry, FileNotFoundException occured.", Toast.LENGTH_LONG).show();
 				} catch (IOException e) {
-					Log.d("managerApp", "error2");
 					e.printStackTrace();
+					 Toast.makeText(this, "Sorry, an error occured.", Toast.LENGTH_LONG).show();
 				}
             
 		        
 		    }
-		
-        
+		    else{
+		    	Toast.makeText(this, "Sorry, location "+root+" is write protected.", Toast.LENGTH_LONG).show();
+		    }
             //Close the ObjectOutputStream
             try {
                 if (outputStream != null) {
                     outputStream.flush();
                     outputStream.close();
+                    Toast.makeText(this, "Config saved as: " + exportfile.getAbsolutePath(), Toast.LENGTH_LONG).show();
                 }
             } catch (IOException ex) {
                 ex.printStackTrace();
+                Toast.makeText(this, "Sorry, an error occured.", Toast.LENGTH_LONG).show();
             }
         }
 	

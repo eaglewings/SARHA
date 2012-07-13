@@ -1,10 +1,10 @@
 package ch.fhnw.students.keller.benjamin.sarha.fsm.ui;
 
-
 import java.util.ArrayList;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.opengl.Visibility;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
@@ -30,7 +30,7 @@ import ch.fhnw.students.keller.benjamin.sarha.config.IOs;
 import ch.fhnw.students.keller.benjamin.sarha.fsm.Action;
 
 public class ActionDialog extends DialogFragment {
-	private Button btOk, btCancel;
+	private Button btOk, btCancel, btDelete;
 	private Context context;
 	private static Config config = IO.defaultConfig();
 	private Action action;
@@ -56,15 +56,13 @@ public class ActionDialog extends DialogFragment {
 		}
 	};
 
-	public ActionDialog(Context context, Action action,
-			boolean newAction) {
+	public ActionDialog(Context context, Action action, boolean newAction) {
 		super();
 		this.action = action;
 		this.context = context;
-		config = IO.defaultConfig();
+		config = AppData.currentWorkingStateMachine.getConfig();
 		this.newAction = newAction;
 	}
-	
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -78,7 +76,7 @@ public class ActionDialog extends DialogFragment {
 			Bundle savedInstanceState) {
 		getDialog().requestWindowFeature(Window.FEATURE_LEFT_ICON);
 		View v = null;
-		
+
 		switch (Action.getType(action)) {
 		case AO:
 			v = inflater.inflate(R.layout.fsm_dialog_action_analog, container,
@@ -87,31 +85,49 @@ public class ActionDialog extends DialogFragment {
 			sbValue.setOnSeekBarChangeListener(sbChangeListener);
 			tvValue = (TextView) v.findViewById(R.id.tvValue);
 			spIo = (Spinner) v.findViewById(R.id.spIo);
-			spIo.setAdapter(new ActionDialogSpinnerAdapter(IO.Type.AO));
+			spIo.setAdapter(new IoDialogSpinnerAdapter(context, config,
+					IO.Type.AO));
 			tvValue.setText("" + sbValue.getProgress());
 			break;
 		case DO:
 			v = inflater.inflate(R.layout.fsm_dialog_action_digital, container,
 					false);
 			spIo = (Spinner) v.findViewById(R.id.spIo);
-			spIo.setAdapter(new ActionDialogSpinnerAdapter(IO.Type.DO));
+			spIo.setAdapter(new IoDialogSpinnerAdapter(context, config,
+					IO.Type.DO));
 			tbValue = (ToggleButton) v.findViewById(R.id.tbValue);
 			break;
 		default:
 			break;
 		}
+		btDelete = (Button) v.findViewById(R.id.btDelete);
+		btDelete.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				AppData.currentWorkingTransition.removeAction(action);
+				ActionDialog.this.dismiss();
+			}
+		});
+		if(newAction){
+			btDelete.setVisibility(View.GONE);
+		}
+		else{
+			btDelete.setVisibility(View.VISIBLE);
+		}
 		btOk = (Button) v.findViewById(R.id.btOk);
 		btCancel = (Button) v.findViewById(R.id.btCancel);
-		
+
 		btOk.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				setValues();
-				if (newAction) {
-					AppData.currentWorkingTransition.addAction(action);
-					System.out.println("added");
+				if (checkValues()) {
+					setValues();
+					if (newAction) {
+						AppData.currentWorkingTransition.addAction(action);
+					}
+					ActionDialog.this.dismiss();
 				}
-				ActionDialog.this.dismiss();
 			}
 		});
 		btCancel.setOnClickListener(new OnClickListener() {
@@ -125,58 +141,67 @@ public class ActionDialog extends DialogFragment {
 		if (newAction) {
 			switch (Action.getType(action)) {
 			case AO:
-				title = "New Analog Output Action";				
-				
+				title = "New Analog Output Action";
+
 				break;
 			case DO:
 				title = "New Digital Output Action";
-				
+
 				break;
 			default:
 				break;
 			}
-			
+
 		} else {
 			switch (Action.getType(action)) {
 			case AO:
 				title = "Edit Analog Output Action";
 				sbValue.setProgress(action.getValue());
-				tvValue.setText(""+action.getValue());
-				spIo.setSelection(((ActionDialogSpinnerAdapter) spIo
-						.getAdapter()).getPosition(action.getAddressIdentifier()));
+				tvValue.setText("" + action.getValue());
+				spIo.setSelection(((IoDialogSpinnerAdapter) spIo.getAdapter())
+						.getPosition(action.getAddressIdentifier()));
 				break;
 			case DO:
 				title = "Edit Digital Output Action";
-				tbValue.setChecked(action.getValue()>0?true:false);
-				spIo.setSelection(((ActionDialogSpinnerAdapter) spIo
-						.getAdapter()).getPosition(action.getAddressIdentifier()));
+				tbValue.setChecked(action.getValue() > 0 ? true : false);
+				spIo.setSelection(((IoDialogSpinnerAdapter) spIo.getAdapter())
+						.getPosition(action.getAddressIdentifier()));
 				break;
 			default:
 				break;
 			}
 		}
-		
+
 		getDialog().setTitle(title);
 		return v;
-		
+
 	}
-	
+
+	protected boolean checkValues() {
+		if (spIo.getSelectedItem() == null) {
+			return false;
+		}
+		return true;
+	}
+
 	protected void setValues() {
 		switch (Action.getType(action)) {
 		case AO:
 			action.setValue(sbValue.getProgress());
-			action.setAddressIdentifier((AnalogOut) ((IOs) spIo.getSelectedItem()).address);
+			action.setAddressIdentifier((AnalogOut) ((IOs) spIo
+					.getSelectedItem()).address);
 			break;
 		case DO:
-			action.setValue(tbValue.isChecked()?1:0);
-			action.setAddressIdentifier((DigitalOut) ((IOs) spIo.getSelectedItem()).address);
+			action.setValue(tbValue.isChecked() ? 1 : 0);
+			action.setAddressIdentifier((DigitalOut) ((IOs) spIo
+					.getSelectedItem()).address);
 			break;
 		default:
 			break;
 		}
-		
+
 	}
-	
+
 	@Override
 	public void onDismiss(DialogInterface dialog) {
 		((TransitionActivity) context).actionAdapter.notifyDataSetChanged();
@@ -214,7 +239,8 @@ public class ActionDialog extends DialogFragment {
 			if (convertView == null) {
 				v = ((LayoutInflater) context
 						.getSystemService(Context.LAYOUT_INFLATER_SERVICE))
-						.inflate(android.R.layout.simple_spinner_item, null);
+						.inflate(android.R.layout.simple_spinner_dropdown_item,
+								null);
 			} else {
 				v = convertView;
 			}
@@ -234,6 +260,4 @@ public class ActionDialog extends DialogFragment {
 
 	}
 
-	
-	
 }

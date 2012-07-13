@@ -4,6 +4,11 @@ import ch.fhnw.students.keller.benjamin.sarha.LuaParseable;
 import ch.fhnw.students.keller.benjamin.sarha.fsm.ui.ConditionView;
 
 public class OperationCondition extends Condition {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3393735366599194249L;
+
 	public static enum OperationType {
 		AND, OR
 	}
@@ -12,8 +17,6 @@ public class OperationCondition extends Condition {
 
 	public OperationCondition(Condition condition) {
 		super(INFINITE_CHILDREN, condition);
-		view = new ConditionView(getTree().view.getContext(), this);
-		addObserver(view);
 	}
 
 	@Override

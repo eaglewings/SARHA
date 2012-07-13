@@ -4,6 +4,11 @@ import ch.fhnw.students.keller.benjamin.sarha.LuaParseable;
 import ch.fhnw.students.keller.benjamin.tree.TreeNode;
 
 public abstract class Condition extends TreeNode implements LuaParseable{
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4041059450656321373L;
 	@Override
 	public abstract String parse();
 	
@@ -25,7 +30,6 @@ public abstract class Condition extends TreeNode implements LuaParseable{
 		return inverted;
 	}
 	
-		
 	public static ConditionTypes getType(Condition condition){
 		if(condition instanceof OperationCondition){
 			return ConditionTypes.OPERATION;

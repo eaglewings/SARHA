@@ -8,34 +8,26 @@ import android.util.AttributeSet;
 import android.widget.LinearLayout;
 
 public class TreeView extends LinearLayout implements Observer {
-	private Tree tree;
-
-	
+	private TreeAdapter adapter;
 
 	public TreeView(Context context, AttributeSet attr) {
 		super(context, attr);
-		System.out.println("constructor");
 	}
 
-
-	public void setTree(Tree tree) {
-
-		this.tree = tree;
-		this.tree.addObserver(this);
-		this.tree.view=this;
+	public void setAdapter(TreeAdapter adapter) {
+		this.adapter = adapter;
+		adapter.addObserver(this);
 		updateViews();
-		
 	}
-
 
 	private void addNodeViews(TreeNode node) {
-		System.out
-				.println("addNodeViews: size: " + node.getChildNodes().size());
 		int i = 0;
 		for (TreeNode nd : node.getChildNodes()) {
 			System.out.println("addview: " + getChildCount() + "loop nr: " + i);
-			nd.view.leftSpaceView.setLayoutParams(new LayoutParams(nd.getTreeLevel()*10, android.view.ViewGroup.LayoutParams.MATCH_PARENT));
-			addView(nd.view);
+			NodeView v = adapter.getView(nd);
+			v.leftSpaceView.setLayoutParams(new LayoutParams(
+					nd.getTreeLevel() * 10, LayoutParams.MATCH_PARENT));
+			addView(v);
 			if (nd.isExpanded() && nd.getChildNodes().size() > 0) {
 				System.out.println("add childviews");
 				addNodeViews(nd);
@@ -45,17 +37,14 @@ public class TreeView extends LinearLayout implements Observer {
 
 	private void updateViews() {
 		removeAllViews();
-		addNodeViews(tree.rootNode);
+		addNodeViews(adapter.getTree().rootNode);
+		System.out.println(adapter.getTree());
+		System.out.println(adapter.getTree().rootNode);
 	}
-
-	
-		
-	
 
 	@Override
 	public void update(Observable observable, Object data) {
 		updateViews();
-
 	}
 
 }

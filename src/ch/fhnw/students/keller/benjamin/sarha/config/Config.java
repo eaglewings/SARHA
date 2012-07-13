@@ -22,7 +22,8 @@ public class Config implements Serializable{
 	private static final long serialVersionUID = -9184492273360860423L;
 	public String name;
 	public String deviceName;
-	private int createId, changeId;
+	private int changeId;
+	final public int createId=(int) (System.currentTimeMillis()/1000);
 	public ArrayList<IO.Type> types = new ArrayList<IO.Type>();
 	public EnumMap<IO.Type, ArrayList<IOs>> ios = new EnumMap<IO.Type, ArrayList<IOs>>(IO.Type.class);
 	
@@ -30,7 +31,7 @@ public class Config implements Serializable{
 		for (IO.Type type : IO.Type.values()) {
 			ios.put(type, new ArrayList<IOs>());
 		}
-		createId=(int) (System.currentTimeMillis()/1000);
+		
 		changeId=createId;
 		this.name=name;
 	}
@@ -39,7 +40,7 @@ public class Config implements Serializable{
 			types.add(io.type);
 		}
 		ios.get(io.type).add(io);
-		
+		setChangeId();
 		
 		
 	}
@@ -48,6 +49,7 @@ public class Config implements Serializable{
 		if(ios.get(io.type).size()==0){
 			types.remove(io.type);
 		}
+		setChangeId();
 		
 	}
 	

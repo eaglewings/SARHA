@@ -44,7 +44,7 @@ public class StateMachineManagerAdapter extends BaseAdapter{
 		StateMachine stateMachine = (StateMachine) getItem(position);
 		
 		tvMedium.setText(stateMachine.getName());
-		tvSmall.setText("created: "+(new Date(stateMachine.createId*1000)).toLocaleString()+"changed: "+(new Date(stateMachine.getChangeId()*1000)).toLocaleString());
+		tvSmall.setText("created: "+(new Date((long)stateMachine.createId*1000)).toLocaleString()+"changed: "+(new Date((long)stateMachine.getChangeId()*1000)).toLocaleString());
 		
 		return v;
 	}

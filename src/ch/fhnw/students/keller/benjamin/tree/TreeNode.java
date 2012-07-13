@@ -1,28 +1,29 @@
 package ch.fhnw.students.keller.benjamin.tree;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Observable;
-import java.util.Observer;
 
-public class TreeNode extends Observable implements Observer{
+public class TreeNode extends Observable implements Serializable{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 9009407318516629609L;
 	public static final int NO_CHILDREN=0;
 	public static final int INFINITE_CHILDREN=-1;
 	private ArrayList<TreeNode> childNodes = new ArrayList<TreeNode>();
 	private TreeNode parentNode;
 	private boolean expanded;
-	private boolean selected=false;
 	private int childrenAllowed;
 	private int id;
 	private Tree tree;
-	public NodeView view;
 	
 	public TreeNode(Tree tree){
 		
 		childrenAllowed=INFINITE_CHILDREN;
 		id=tree.newNode(this);
 		this.tree= tree;
-		this.tree.addObserver(this);
 		expanded=true;
 		
 	}
@@ -32,9 +33,6 @@ public class TreeNode extends Observable implements Observer{
 		this.parentNode=parentNode;
 		tree=parentNode.getTree();
 		id=tree.newNode(this);
-		this.tree.addObserver(this);
-		view = new NodeView(tree.view.getContext(), this);
-		addObserver(view);
 		
 	}
 	
@@ -48,7 +46,7 @@ public class TreeNode extends Observable implements Observer{
 		expanded=true;
 		setChanged();
 		notifyObservers();
-		tree.view.update(null, null);
+		tree.dataSetChanged();
 	}
 	public void collapse(){
 		expanded=false;
@@ -60,7 +58,7 @@ public class TreeNode extends Observable implements Observer{
 		}
 		setChanged();
 		notifyObservers();
-		tree.view.update(null, null);
+		tree.dataSetChanged();
 	}
 	public boolean isExpanded(){
 		return expanded;
@@ -131,24 +129,9 @@ public class TreeNode extends Observable implements Observer{
 		return false;
 	}
 
-	@Override
-	public void update(Observable observable, Object data) {
-		boolean oldselect=selected;
-		if(this.equals(tree.getSelectedNode())){
-			selected=true;
-		}
-		else{
-			selected=false;
-		}
-		if(oldselect!=selected){
-			setChanged();
-			notifyObservers();
-		}
-	}
-
 	public boolean isSelected() {
 		
-		return selected;
+		return this.equals(tree.getSelectedNode());
 	}
 	
 	

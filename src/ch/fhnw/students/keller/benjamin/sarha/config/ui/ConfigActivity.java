@@ -1,11 +1,13 @@
 package ch.fhnw.students.keller.benjamin.sarha.config.ui;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.Window;
 import android.widget.ListView;
 import ch.fhnw.students.keller.benjamin.sarha.AppData;
 import ch.fhnw.students.keller.benjamin.sarha.R;
@@ -14,6 +16,7 @@ import ch.fhnw.students.keller.benjamin.sarha.config.AnalogOut;
 import ch.fhnw.students.keller.benjamin.sarha.config.Config;
 import ch.fhnw.students.keller.benjamin.sarha.config.DigitalIn;
 import ch.fhnw.students.keller.benjamin.sarha.config.DigitalOut;
+import ch.fhnw.students.keller.benjamin.sarha.config.IO;
 import ch.fhnw.students.keller.benjamin.sarha.config.IOs;
 
 public class ConfigActivity extends FragmentActivity {

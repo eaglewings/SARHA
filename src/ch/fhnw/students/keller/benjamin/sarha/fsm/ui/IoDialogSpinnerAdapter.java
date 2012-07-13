@@ -53,6 +53,19 @@ class IoDialogSpinnerAdapter extends BaseAdapter {
 	}
 
 	@Override
+	public View getDropDownView(int position, View convertView, ViewGroup parent) {
+		View v;
+		if (convertView == null) {
+			v = ((LayoutInflater) context
+					.getSystemService(Context.LAYOUT_INFLATER_SERVICE))
+					.inflate(android.R.layout.simple_spinner_dropdown_item, null);
+		} else {
+			v = convertView;
+		}
+		TextView tv = (TextView) v.findViewById(android.R.id.text1);
+		tv.setText(((IOs) getItem(position)).name);//Set the displayed string of an item to the IOs name as defined in the configuration
+		return v;	}
+	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		View v;
 		if (convertView == null) {

@@ -3,9 +3,12 @@ package ch.fhnw.students.keller.benjamin.sarha.fsm;
 import ch.fhnw.students.keller.benjamin.sarha.LuaParseable;
 import ch.fhnw.students.keller.benjamin.sarha.fsm.Condition.ConditionTypes;
 import ch.fhnw.students.keller.benjamin.tree.Tree;
-import ch.fhnw.students.keller.benjamin.tree.TreeNode;
 
-public class ConditionTree extends Tree implements LuaParseable {
+public class ConditionTree extends Tree implements LuaParseable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4211415172002602236L;
 
 	public ConditionTree() {
 		rootNode = new RootCondition(this);
@@ -35,27 +38,6 @@ public class ConditionTree extends Tree implements LuaParseable {
 
 			addNode(condition);
 		}
-	}
-
-	class RootCondition extends Condition {
-
-		public RootCondition(ConditionTree tree) {
-			super(tree);
-			setChildrenAllowed(1);
-		}
-
-		@Override
-		public String parse() {
-			String lua = "";
-			for (TreeNode node : getChildNodes()) {
-				lua += ((LuaParseable) node).parse();
-			}
-			if(lua.equals("")){
-				return lua +"false";
-			}
-			return lua;
-		}
-
 	}
 
 	@Override

@@ -1,22 +1,29 @@
 package ch.fhnw.students.keller.benjamin.tree;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Observable;
 
-public class Tree extends Observable {
-	public TreeNode rootNode;
+public class Tree extends Observable implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7636873710560107200L;
+	protected TreeNode rootNode;
 	private TreeNode selectedNode;
 	private int nodeIdCounter = 0;
 	private HashMap<Integer, TreeNode> allNodes = new HashMap<Integer, TreeNode>();
-	public TreeView view;
+	
 
 	public Tree() {
 		rootNode = new TreeNode(this);
 
 	}
-
+	public void dataSetChanged(){
+		setChanged();
+		notifyObservers();
+	}
 	public void addNode(TreeNode node) {
-
 		node.getParentNode().addChild(node,
 				node.getParentNode().getChildNodes().size());
 		node.getParentNode().expand();
@@ -43,7 +50,7 @@ public class Tree extends Observable {
 			allNodes.remove(selectedNode.getId());
 			selectedNode.getParentNode().removeChild(selectedNode);
 			if (!selectedNode.getParentNode().equals(rootNode)) {
-				selectedNode.getParentNode().view.update(null, null);
+				dataSetChanged();
 			}
 			unselectTreeNode();
 		}
@@ -69,5 +76,8 @@ public class Tree extends Observable {
 		allNodes.put(nodeIdCounter, node);
 		return nodeIdCounter++;
 
+	}
+	public TreeNode getRoot(){
+		return rootNode;
 	}
 }

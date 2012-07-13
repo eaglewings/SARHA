@@ -1,11 +1,17 @@
 package ch.fhnw.students.keller.benjamin.sarha.fsm;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import ch.fhnw.students.keller.benjamin.sarha.LuaParseable;
 import ch.fhnw.students.keller.benjamin.sarha.fsm.Action.ActionType;
 
-public class Transition implements LuaParseable {
+public class Transition implements Serializable, LuaParseable {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6458618589346480152L;
 	private State toState;
 	private State fromState;
 	private String name;

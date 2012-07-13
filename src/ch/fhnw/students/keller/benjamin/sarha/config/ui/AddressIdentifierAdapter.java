@@ -21,7 +21,6 @@ public class AddressIdentifierAdapter extends ArrayAdapter<AddressIdentifier> {
 	public AddressIdentifierAdapter(Context context, int textViewResourceId, IOs io,
 			ArrayList<AddressIdentifier> hwAddresses) {
 		super(context, textViewResourceId, hwAddresses);
-		// TODO Auto-generated constructor stub
 		this.context=context;
 		config=((ConfigActivity)context).config;
 		this.io=io;

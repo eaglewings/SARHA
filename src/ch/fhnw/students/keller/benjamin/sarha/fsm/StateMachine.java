@@ -3,6 +3,7 @@ package ch.fhnw.students.keller.benjamin.sarha.fsm;
 import java.util.ArrayList;
 
 import ch.fhnw.students.keller.benjamin.sarha.LuaParseable;
+import ch.fhnw.students.keller.benjamin.sarha.config.Config;
 
 public class StateMachine extends ArrayList<State> implements LuaParseable{
 	/**
@@ -11,14 +12,17 @@ public class StateMachine extends ArrayList<State> implements LuaParseable{
 	private static final long serialVersionUID = 1L;
 	private String name;
 	private State initialState;
-	public final int createId=(int) (System.currentTimeMillis()/1000);
+	final public int createId=(int) (System.currentTimeMillis()/1000);
 	private int changeId;
+	private Config config;
 	
 
-	public StateMachine() {
+	public StateMachine(String name, Config config) {
 		super();
-		name = "NewStateMachine";
+		this.name=name;
+		this.config=config;
 		changeId=createId;
+		
 	}
 
 	public void setInitialState(State initialState) {
@@ -99,6 +103,14 @@ public class StateMachine extends ArrayList<State> implements LuaParseable{
 		lua+="end))\n";
 		
 		return lua;
+	}
+
+	public void setConfig(Config config) {
+		this.config = config;
+	}
+
+	public Config getConfig() {
+		return config;
 	}
 
 }

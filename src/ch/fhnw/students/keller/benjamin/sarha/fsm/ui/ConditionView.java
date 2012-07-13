@@ -3,6 +3,7 @@ package ch.fhnw.students.keller.benjamin.sarha.fsm.ui;
 import java.util.Observable;
 
 import android.content.Context;
+import ch.fhnw.students.keller.benjamin.sarha.config.IO;
 import ch.fhnw.students.keller.benjamin.sarha.fsm.AnalogInCondition;
 import ch.fhnw.students.keller.benjamin.sarha.fsm.Condition;
 import ch.fhnw.students.keller.benjamin.sarha.fsm.DigitalInCondition;
@@ -14,44 +15,42 @@ public class ConditionView extends NodeView {
 	public ConditionView(Context context, Condition node) {
 		super(context, node);
 	}
-	 @Override
+
+	@Override
 	public void update(Observable observable, Object data) {
 		super.update(observable, data);
-		String str="";
-		System.out.println("update: "+node);
-		System.out.println("ConditionView ConditioType: "+Condition.getType((Condition) node));
+		String str = "";
 		switch (Condition.getType((Condition) node)) {
-		
+
 		case OPERATION:
-			OperationType type =((OperationCondition) node).getType();
+			OperationType type = ((OperationCondition) node).getType();
 			switch (type) {
 			case OR:
-				str="OR";
+				str = "OR";
 				break;
 			case AND:
-				str="AND";
+				str = "AND";
 				break;
 			default:
 				break;
 			}
-			
-			
+
 			break;
 		case AI:
-			
-			str= ((AnalogInCondition)node).getAi().name();
-			
+
+			str = IO.getName(((AnalogInCondition) node).getAi());
+
 			break;
 		case DI:
-			str=((DigitalInCondition)node).getDi().name();
-			
+			str = IO.getName(((DigitalInCondition) node).getDi());
+
 			break;
 
 		default:
 			break;
 		}
-		if(((Condition) node).isInverted()){
-			str="(Inverted) "+str;
+		if (((Condition) node).isInverted()) {
+			str = "(Inverted) " + str;
 		}
 		tv1.setText(str);
 		tv2.setText(((Condition) node).parse());

@@ -1,4 +1,4 @@
-package ch.fhnw.students.keller.benjamin.sarha.config.ui;
+package ch.fhnw.students.keller.benjamin.sarha.fsm.ui;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -14,10 +14,11 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import ch.fhnw.students.keller.benjamin.sarha.AppData;
 import ch.fhnw.students.keller.benjamin.sarha.config.Config;
+import ch.fhnw.students.keller.benjamin.sarha.fsm.StateMachine;
 
-public class ExportConfigDialogFragment extends DialogFragment {
-	static ExportConfigDialogFragment newInstance() {
-	       ExportConfigDialogFragment f = new ExportConfigDialogFragment();
+public class ExportStateMachineDialogFragment extends DialogFragment {
+	static ExportStateMachineDialogFragment newInstance() {
+	       ExportStateMachineDialogFragment f = new ExportStateMachineDialogFragment();
 	        Bundle args = new Bundle();
 	        args.putString("name", "newconfig");
 	        f.setArguments(args);
@@ -30,19 +31,19 @@ public class ExportConfigDialogFragment extends DialogFragment {
 		 v.setOrientation(LinearLayout.VERTICAL);
 		 final Spinner s = new Spinner(this.getActivity());
 		 final EditText e = new EditText(this.getActivity());
-		 ArrayAdapter<Config> adapter = new ArrayAdapter<Config>(this.getActivity(), android.R.layout.simple_spinner_item,android.R.id.text1, AppData.data.configs);
+		 ArrayAdapter<StateMachine> adapter = new ArrayAdapter<StateMachine>(this.getActivity(), android.R.layout.simple_spinner_item,android.R.id.text1, AppData.data.stateMachines);
 		 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		 s.setAdapter(adapter);
 		 s.setOnItemSelectedListener(new OnItemSelectedListener() {
 
-			@Override
+			@Override	
 			public void onItemSelected(AdapterView<?> parent, View view,
 					int position, long id) {
 				if(s.getItemAtPosition(position) !=null){
-				e.setText(((Config)s.getItemAtPosition(position)).name.trim()+".cfg");
+				e.setText(((StateMachine)s.getItemAtPosition(position)).getName().trim()+".stm");
 				}
 				else{
-					e.setText("config.cfg");
+					e.setText("statemachine.stm");
 				}
 			}
 
@@ -66,7 +67,7 @@ public class ExportConfigDialogFragment extends DialogFragment {
 	                    new DialogInterface.OnClickListener() {
 	                        @Override
 							public void onClick(DialogInterface dialog, int whichButton) {
-	                            ((ConfigManagerActivity)getActivity()).doExportConfigPositiveClick(e.getText().toString(),s.getSelectedItem());
+	                            ((StateMachineManagerActivity)getActivity()).doExportStateMachinePositiveClick(e.getText().toString(),s.getSelectedItem());
 	                        }
 	                    }
 	                )
@@ -74,7 +75,7 @@ public class ExportConfigDialogFragment extends DialogFragment {
 	                    new DialogInterface.OnClickListener() {
 	                        @Override
 							public void onClick(DialogInterface dialog, int whichButton) {
-	                            ((ConfigManagerActivity)getActivity()).doNewConfigNegativeClick();
+	                            ExportStateMachineDialogFragment.this.dismiss();
 	                        }
 	                    }
 	                )

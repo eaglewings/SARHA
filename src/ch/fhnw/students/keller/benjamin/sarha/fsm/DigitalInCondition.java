@@ -1,14 +1,15 @@
 package ch.fhnw.students.keller.benjamin.sarha.fsm;
 
 import ch.fhnw.students.keller.benjamin.sarha.config.IO.DigitalIn;
-import ch.fhnw.students.keller.benjamin.sarha.fsm.ui.ConditionView;
 
 public class DigitalInCondition extends Condition {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4156857153478703521L;
 	private DigitalIn di=DigitalIn.DI0;
 	public DigitalInCondition(Condition condition) {
 		super(0, condition);
-		view = new ConditionView(getTree().view.getContext(), this);
-		addObserver(view);
 	}
 	@Override
 	public String parse() {
