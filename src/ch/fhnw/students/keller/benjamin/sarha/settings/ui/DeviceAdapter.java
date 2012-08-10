@@ -5,6 +5,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 import android.content.Context;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +25,11 @@ public class DeviceAdapter extends BaseAdapter implements Observer{
 		inflater = (LayoutInflater) context
 		.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
-	
+	public DeviceAdapter(Context context, ArrayList<Device> devices){
+		inflater = (LayoutInflater) context
+		.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		this.devices=devices;
+	}
 	@Override
 	public int getCount() {
 		return devices.size();
@@ -42,8 +47,9 @@ public class DeviceAdapter extends BaseAdapter implements Observer{
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		ViewHolder holder = new ViewHolder();
-		Device device= (Device) getItem(position);
+		
+		final ViewHolder holder = new ViewHolder();
+		final Device device= (Device) getItem(position);
 		holder.device=device;
 		View v = convertView;
 		
@@ -68,9 +74,31 @@ public class DeviceAdapter extends BaseAdapter implements Observer{
 			break;
 		}
 		holder.tvName.setText(device.getName());
-		holder.tvIp.setText(device.getAddress().getHostName() + ":"
-				+ device.getAddress().getPort());
+		final Handler handler = new Handler();
+		new Thread() {
+			
+			@Override
+			public void run() {
+				final String hostname= device.getAddress().getHostName();
+				final int port =device.getAddress().getPort();
+				handler.post(new Runnable() {
+			
+			@Override
+			public void run() {
+				holder.tvIp.setText(hostname + ":"
+				+ port);
+			}
+		});
+			}
+		}.start();
+		
+		
+		
 		return v;
+	}
+	public void setDevices(ArrayList<Device> devices){
+		this.devices=devices;
+		notifyDataSetChanged();
 	}
 
 	@Override

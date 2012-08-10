@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -25,10 +26,13 @@ import android.widget.ListView;
 import android.widget.Toast;
 import ch.fhnw.students.keller.benjamin.sarha.AppData;
 import ch.fhnw.students.keller.benjamin.sarha.R;
+import ch.fhnw.students.keller.benjamin.sarha.comm.CommManager;
+import ch.fhnw.students.keller.benjamin.sarha.config.ui.ConfigActivity;
 import ch.fhnw.students.keller.benjamin.sarha.fsm.State;
 import ch.fhnw.students.keller.benjamin.sarha.fsm.StateMachine;
+import ch.fhnw.students.keller.benjamin.sarha.remote.ui.DevicesDialogFragment;
 
-public class StateMachineActivity extends Activity {
+public class StateMachineActivity extends FragmentActivity {
 
 	private StateMachine fsm;
 	private String[] values;
@@ -89,7 +93,7 @@ public class StateMachineActivity extends Activity {
 			public boolean onItemLongClick(AdapterView<?> adapter, View view,
 					int pos, long id) {
 				final int finalpos = pos;
-				alertDia.setTitle("Delete Device \"" + fsm.get(pos) + "\"?");
+				alertDia.setTitle("Delete State \"" + fsm.get(pos) + "\"?");
 				alertDia.setButton(DialogInterface.BUTTON_POSITIVE, "Delete",
 						new DialogInterface.OnClickListener() {
 
@@ -123,25 +127,30 @@ public class StateMachineActivity extends Activity {
 			adapter.notifyDataSetChanged();
 			break;
 		}
-		case R.id.parseStateMachine:{
+		case R.id.parseStateMachine: {
 			OutputStream fos = null;
-			   File file = new File(Environment.getExternalStorageDirectory().toString(), "program.lua");
-			   try {
-			    fos = new FileOutputStream(file);
-			    fos.write(fsm.parse().getBytes());
-			    fos.flush();
-			    fos.close();
-			   
-			    Toast.makeText(this, "Saved", Toast.LENGTH_LONG).show();
-			   
-			   } catch (FileNotFoundException e) {
-			    e.printStackTrace();
-			    Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
-			   } catch (IOException e) {
-			    e.printStackTrace();
-			    Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
-			   }
+			File file = new File(Environment.getExternalStorageDirectory()
+					.toString(), "program.lua");
+			try {
+				fos = new FileOutputStream(file);
+				fos.write(fsm.parse().getBytes());
+				fos.flush();
+				fos.close();
+
+				Toast.makeText(this, "Saved", Toast.LENGTH_LONG).show();
+
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+				Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
+			} catch (IOException e) {
+				e.printStackTrace();
+				Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
+			}
 			break;
+		}
+		case R.id.uploadStateMachine: {
+			UploadStateMachineDialogFragment.newInstance(fsm).show(
+					getSupportFragmentManager(), "dialog");
 		}
 		}
 

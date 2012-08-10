@@ -18,6 +18,7 @@ import ch.fhnw.students.keller.benjamin.sarha.config.DigitalIn;
 import ch.fhnw.students.keller.benjamin.sarha.config.DigitalOut;
 import ch.fhnw.students.keller.benjamin.sarha.config.IO;
 import ch.fhnw.students.keller.benjamin.sarha.config.IOs;
+import ch.fhnw.students.keller.benjamin.sarha.config.Timer;
 
 public class ConfigActivity extends FragmentActivity {
 	public ConfigAdapter adapter;
@@ -54,22 +55,24 @@ public class ConfigActivity extends FragmentActivity {
 	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		
-		if (item.getItemId() == R.id.anin) {
+		switch(item.getItemId()){
+		case R.id.anin :
 			showDialog(new AnalogIn(),true);
-			return true;
-		} else if (item.getItemId() == R.id.anout) {
+			break;
+		case R.id.anout :
 			showDialog(new AnalogOut(),true);
-			return true;
-		} else if (item.getItemId() == R.id.digin) {
+			break;
+		case R.id.digin :
 			showDialog(new DigitalIn(),true);
-			return true;
-		} else if (item.getItemId() == R.id.digout) {
+			break;
+		case R.id.digout :
 			showDialog(new DigitalOut(),true);
-			return true;
-		} else {
-			return super.onOptionsItemSelected(item);
+			break;
+		case R.id.timer :
+			showDialog(new Timer(), true);
+			break;
 		}
+		return true;
 	}
 
 	@Override

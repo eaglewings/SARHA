@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    
+
+    
+
+    <TableLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true" >
+
+       <TableRow
+            android:id="@+id/trHeadings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+          <TextView
+        android:id="@+id/tvHours"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="hours"
+        android:layout_gravity="center"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <TextView
+        android:id="@+id/tvMinutes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="minutes"
+        android:layout_gravity="center"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <TextView
+        android:id="@+id/tvSeconds"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="seconds"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+<TextView
+        android:id="@+id/tvHSeconds"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text=".00 seconds"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+    
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/trPickers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+    
+        </TableRow>
+    </TableLayout>
+
+</RelativeLayout>

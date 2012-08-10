@@ -4,6 +4,8 @@
     <item android:id="@+id/digout" android:title="Digital Output"></item>
     <item android:id="@+id/anin" android:title="Analog Input"></item>
     <item android:id="@+id/anout" android:title="Analog Output"></item>
+        <item android:id="@+id/timer" android:title="Timer">
+    </item>
 
     
 

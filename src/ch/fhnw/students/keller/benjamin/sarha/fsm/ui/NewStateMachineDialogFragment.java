@@ -20,6 +20,9 @@ import ch.fhnw.students.keller.benjamin.sarha.fsm.StateMachine;
 
 public class NewStateMachineDialogFragment extends DialogFragment {
 	private StateMachine stateMachine;
+	private EditText etName;
+	private Button btOk, btCancel, btDelete;
+	private Spinner spConfig;
 	static NewStateMachineDialogFragment newInstance(StateMachine stateMachine) {
 	       NewStateMachineDialogFragment f = new NewStateMachineDialogFragment();
 	       
@@ -33,10 +36,11 @@ public class NewStateMachineDialogFragment extends DialogFragment {
 			Bundle savedInstanceState) {
 		View v = inflater.inflate(R.layout.fsm_dialog_statemachine, container);
 		getDialog().requestWindowFeature(Window.FEATURE_LEFT_ICON);
-		final EditText etName = (EditText) v.findViewById(R.id.etName);
-		Button btOk = (Button) v.findViewById(R.id.btOk);
-		Button btCancel = (Button) v.findViewById(R.id.btCancel);
-		final Spinner spConfig = (Spinner) v.findViewById(R.id.spConfig);
+		etName = (EditText) v.findViewById(R.id.etName);
+		btOk = (Button) v.findViewById(R.id.btOk);
+		btDelete = (Button) v.findViewById(R.id.btDelete);
+		btCancel = (Button) v.findViewById(R.id.btCancel);
+		spConfig = (Spinner) v.findViewById(R.id.spConfig);
 		spConfig.setAdapter(new ConfigSpinnerAdapter(this.getActivity()));
 		
 		btCancel.setOnClickListener(new OnClickListener() {
@@ -46,11 +50,22 @@ public class NewStateMachineDialogFragment extends DialogFragment {
 				getDialog().dismiss();
 			}
 		});
+		btDelete.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				AppData.data.stateMachines.remove(stateMachine);
+				NewStateMachineDialogFragment.this.dismiss();
+				
+			}
+		});
 		
 		if(stateMachine==null){
 		getDialog().setTitle("New Statemachine");
+		etName.setText("new statemachine");
 		getDialog().setFeatureDrawableResource(Window.FEATURE_LEFT_ICON,
 				android.R.drawable.ic_menu_add);
+		btDelete.setVisibility(View.GONE);
 		btOk.setOnClickListener(new OnClickListener() {
 			
 			@Override
@@ -66,12 +81,14 @@ public class NewStateMachineDialogFragment extends DialogFragment {
 				
 			}
 		});
+		
 		}
 		else{
 			getDialog().setTitle("Edit Statemachine");
 			getDialog().setFeatureDrawableResource(Window.FEATURE_LEFT_ICON,
 					android.R.drawable.ic_dialog_info);
 			etName.setText(stateMachine.getName());
+			btDelete.setVisibility(View.VISIBLE);
 			
 			spConfig.setSelection(((ArrayAdapter<Config>) spConfig.getAdapter()).getPosition(stateMachine.getConfig()));
 			btOk.setOnClickListener(new OnClickListener() {

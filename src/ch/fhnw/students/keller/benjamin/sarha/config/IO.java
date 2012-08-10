@@ -15,7 +15,7 @@ public class IO implements Serializable {
 	private static final long serialVersionUID = -176688756205784271L;
 
 	public static enum Type {
-		DO, DI, AO, AI;
+		DO, DI, AO, AI, TMR;
 	};
 
 	public static EnumMap<Type, String> typeHeaders = new EnumMap<Type, String>(
@@ -27,10 +27,12 @@ public class IO implements Serializable {
 		typeHeaders.put(Type.DI, "Digital Inputs");
 		typeHeaders.put(Type.AO, "Analog Outputs");
 		typeHeaders.put(Type.AI, "Analog Inputs");
+		typeHeaders.put(Type.TMR, "Timers");
 		typeDescriptors.put(Type.DO, "Digital Output");
 		typeDescriptors.put(Type.DI, "Digital Input");
 		typeDescriptors.put(Type.AO, "Analog Output");
 		typeDescriptors.put(Type.AI, "Analog Input");
+		typeDescriptors.put(Type.TMR, "Timer");
 	}
 
 	public static enum AddressIdentifierNotSet implements AddressIdentifier {
@@ -132,6 +134,34 @@ public class IO implements Serializable {
 		}
 
 	}
+	
+	public enum Timer implements AddressIdentifier {
+		T0,T1,T2,T3,T4,T5,T6,T7;
+
+		@Override
+		public Type getType() {
+			return Type.TMR;
+		}
+
+		@Override
+		public int getOrdinal() {
+			return ordinal();
+		}
+
+		@Override
+		public AddressIdentifier[] getValues() {
+			return Timer.values();
+		}
+		
+		@Override
+		public String toString() {
+			return "tmr.VIR"+super.toString();
+		}
+		public String getLuaVar(){
+			return super.toString();
+		}
+		
+	}
 
 	public enum Digital {
 		ON, OFF
@@ -156,7 +186,6 @@ public class IO implements Serializable {
 		if(config==null){
 			config=IO.defaultConfig();
 		}
-		config.getIOName(ai);
 		return config.getIOName(ai);
 	}
 
@@ -169,7 +198,9 @@ public class IO implements Serializable {
 		case AO:
 			return new ArrayList<AddressIdentifier>(Arrays.asList(IO.AnalogOut.values()));	
 		case AI:
-			return new ArrayList<AddressIdentifier>(Arrays.asList(IO.AnalogIn.values()));		
+			return new ArrayList<AddressIdentifier>(Arrays.asList(IO.AnalogIn.values()));
+		case TMR:
+			return new ArrayList<AddressIdentifier>(Arrays.asList(IO.Timer.values()));	
 		default:
 			return new ArrayList<AddressIdentifier>(Arrays.asList(IO.AddressIdentifierNotSet.values()));	
 		}
@@ -212,6 +243,12 @@ public class IO implements Serializable {
 		}
 		for (AnalogIn ai : AnalogIn.values()) {
 			ch.fhnw.students.keller.benjamin.sarha.config.AnalogIn io = new ch.fhnw.students.keller.benjamin.sarha.config.AnalogIn();
+			io.address = ai;
+			io.name = ai.toString();
+			cfg.add(io);
+		}
+		for (Timer ai : Timer.values()) {
+			ch.fhnw.students.keller.benjamin.sarha.config.Timer io = new ch.fhnw.students.keller.benjamin.sarha.config.Timer();
 			io.address = ai;
 			io.name = ai.toString();
 			cfg.add(io);

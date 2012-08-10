@@ -12,13 +12,13 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 import android.widget.Toast;
 import ch.fhnw.students.keller.benjamin.sarha.AppData;
@@ -50,7 +50,16 @@ public class ConfigManagerActivity extends FragmentActivity {
 			}
 		});
 		
-		
+		list.setOnItemLongClickListener(new OnItemLongClickListener() {
+
+			@Override
+			public boolean onItemLongClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				NewConfigDialogFragment.newInstance((Config) adapter.getItem(position)).show(getSupportFragmentManager(), "dialog");
+				
+				return false;
+			}
+		});
 		
 		
 		
@@ -68,6 +77,11 @@ public class ConfigManagerActivity extends FragmentActivity {
 		inflater.inflate(R.menu.config_configmanager, menu);
 		return true;
 	}
+	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+		adapter.notifyDataSetChanged();
+		super.onWindowFocusChanged(hasFocus);
+	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
@@ -81,6 +95,10 @@ public class ConfigManagerActivity extends FragmentActivity {
 		case  R.id.menuitemimportconfig:
 			showMyDialog(item.getItemId());
 			break;
+		case  R.id.menuitemdownloadconfig:
+			Intent intent = new Intent(this,UploadDownloadConfigActivity.class);
+			startActivity(intent);
+			break;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
@@ -89,10 +107,18 @@ public class ConfigManagerActivity extends FragmentActivity {
 	
 	void showMyDialog(int id) {
 		DialogFragment newFragment =null;
-		if (id == R.id.menuitemnewconfig) {
-			newFragment = NewConfigDialogFragment.newInstance();
-		} else if (id == R.id.menuitemexportconfig) {
+		switch(id){
+		case R.id.menuitemnewconfig:
+			newFragment = NewConfigDialogFragment.newInstance(null);
+			break;
+		case R.id.menuitemexportconfig:
 			newFragment = ExportConfigDialogFragment.newInstance();
+			break;
+		case R.id.menuitemimportconfig:
+			newFragment= DownloadUploadConfigDialogFragment.newInstance(null,0,0);
+			break;
+		default:
+			break;
 		}
 	    if(newFragment!=null){
 	    newFragment.show(getSupportFragmentManager(), "dialog");
@@ -100,14 +126,10 @@ public class ConfigManagerActivity extends FragmentActivity {
 	}
 
 	public void doNewConfigPositiveClick(String name) {
-		
 		adapter.add(new Config(name));
-		
 	}
 
 	public void doNewConfigNegativeClick() {
-		// TODO Auto-generated method stub
-		
 	}
 
 	public void doExportConfigPositiveClick(String string, Object selectedItem) {
@@ -152,4 +174,6 @@ public class ConfigManagerActivity extends FragmentActivity {
 		AppData.saveAppData();
 		super.onPause();
 	}
+	
+	
 }

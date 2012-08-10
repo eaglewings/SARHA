@@ -53,14 +53,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <Button
+       
+    </LinearLayout>
+ <Button
             android:id="@+id/btDelete"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Delete"
             android:visibility="gone" />
-    </LinearLayout>
-
     <LinearLayout
         android:id="@+id/buttonbar"
         style="@android:style/ButtonBar"

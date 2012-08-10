@@ -11,6 +11,9 @@
     <item android:id="@+id/ai_condition"
           android:icon="@android:drawable/ic_menu_add"
           android:title="analog" />
+    <item android:id="@+id/tmr_condition"
+          android:icon="@android:drawable/ic_menu_add"
+          android:title="timer" />
      <item android:id="@+id/delete_condition"
           android:icon="@android:drawable/ic_menu_delete"
           android:title="delete" />

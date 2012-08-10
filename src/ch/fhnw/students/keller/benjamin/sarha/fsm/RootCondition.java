@@ -22,7 +22,7 @@ public class RootCondition extends Condition {
 			lua += ((LuaParseable) node).parse();
 		}
 		if(lua.equals("")){
-			return lua +"false";
+			return lua +"true";
 		}
 		return lua;
 	}

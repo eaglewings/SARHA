@@ -4,6 +4,9 @@ import java.util.ArrayList;
 
 import ch.fhnw.students.keller.benjamin.sarha.LuaParseable;
 import ch.fhnw.students.keller.benjamin.sarha.config.Config;
+import ch.fhnw.students.keller.benjamin.sarha.config.IO.Type;
+import ch.fhnw.students.keller.benjamin.sarha.config.IOs;
+import ch.fhnw.students.keller.benjamin.sarha.config.Timer;
 
 public class StateMachine extends ArrayList<State> implements LuaParseable{
 	/**
@@ -93,15 +96,19 @@ public class StateMachine extends ArrayList<State> implements LuaParseable{
 		lua+="Change ID: "+changeId+"\n";
 		lua+="]]--\n\n";
 		lua+="module(..., package.seeall)\n\n";
-		
+		lua+="require\"t\"\n\n";
+		for (IOs timer : config.getListOfType(Type.TMR)){
+			lua+=((Timer) timer).parse();	
+		}
+		lua+="\n\n";
 		for (State state : this) {
 			lua+=state.parse();
 		}
 		lua+="\n\n";
 		lua+="table.insert(threads, coroutine.create(function ()\n";
-		lua+="\tstate"+indexOf(initialState)+"()\n";
+		lua+="\tstate"+ (indexOf(initialState)>=0?indexOf(initialState):0)+"()\n";
 		lua+="end))\n";
-		
+		lua+="PROGCOMPLETE=true\n";
 		return lua;
 	}
 

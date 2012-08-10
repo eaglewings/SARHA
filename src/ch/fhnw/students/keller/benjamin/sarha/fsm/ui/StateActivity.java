@@ -13,16 +13,21 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ListView;
 import android.widget.TextView;
 import ch.fhnw.students.keller.benjamin.sarha.AppData;
 import ch.fhnw.students.keller.benjamin.sarha.R;
 import ch.fhnw.students.keller.benjamin.sarha.fsm.State;
+import ch.fhnw.students.keller.benjamin.sarha.fsm.StateMachine;
 import ch.fhnw.students.keller.benjamin.sarha.fsm.Transition;
 
 public class StateActivity extends Activity{
 	private StateAdapter stateAdapter;
 	private State state;
+	private StateMachine stateMachine;
 	private AlertDialog alertDia;
 	private Handler myHandler = new Handler();
 	
@@ -32,9 +37,23 @@ public class StateActivity extends Activity{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.fsm_activity_state);
 		state = AppData.currentWorkingState;
+		stateMachine = AppData.currentWorkingStateMachine;
 
 		ListView listViewTransitions = (ListView) findViewById(R.id.listViewTransitions);
-		
+		CheckBox cbInitial = (CheckBox) findViewById(R.id.cbInitial);
+		if(state.equals(stateMachine.getInitialState())){
+			cbInitial.setChecked(true);
+		}
+		cbInitial.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				if(isChecked){
+					stateMachine.setInitialState(state);
+					stateMachine.setChangeId();
+				}
+			}
+		});
 		TextView txtView = (TextView) findViewById(R.id.textView2);
 		txtView.setText(state.getStateName());
 
@@ -91,6 +110,7 @@ public class StateActivity extends Activity{
 									public void onClick(DialogInterface dialog,
 											int which) {
 										state.remove(finalpos);
+										stateMachine.setChangeId();
 										StateActivity.this.stateAdapter
 												.notifyDataSetChanged();
 									}

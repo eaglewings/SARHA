@@ -25,8 +25,8 @@ public class DeviceFinder extends Thread {
 	private static final int DATAGRAM_SOCKET_TIMEOUT = 8000;
 	private static final int UDP_PACKET_LENGTH = 110;
 	private static final int DEVICE_NAME_STRING_START = 60;
-	private static final int DEVICE_NAME_STRING_LENGTH = 29;
-	private static final int DEVICE_ID_BYTES_START = 89;
+	private static final int DEVICE_NAME_STRING_LENGTH = 26;
+	private static final int DEVICE_ID_BYTES_START = 86;
 	private static final int DEVICE_ID_BYTES_LENGTH = 6;
 	
 	public DeviceFinder(Context context){

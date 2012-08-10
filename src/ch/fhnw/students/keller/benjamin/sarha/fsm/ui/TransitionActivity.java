@@ -27,6 +27,8 @@ import ch.fhnw.students.keller.benjamin.sarha.fsm.DigitalOutAction;
 import ch.fhnw.students.keller.benjamin.sarha.fsm.OperationCondition;
 import ch.fhnw.students.keller.benjamin.sarha.fsm.State;
 import ch.fhnw.students.keller.benjamin.sarha.fsm.StateMachine;
+import ch.fhnw.students.keller.benjamin.sarha.fsm.TimerAction;
+import ch.fhnw.students.keller.benjamin.sarha.fsm.TimerCondition;
 import ch.fhnw.students.keller.benjamin.sarha.fsm.Transition;
 import ch.fhnw.students.keller.benjamin.tree.TreeView;
 
@@ -59,7 +61,6 @@ public class TransitionActivity extends FragmentActivity {
 		txtViewFromState.setText(state.getStateName());
 		txtViewTransition.setText(transition.toString());
 		conditionView.setAdapter(new ConditionAdapter(transition.condition, this));
-
 		mTabHost = (TabHost) findViewById(android.R.id.tabhost);
 		mTabHost.setup();
 		mTabHost.addTab(mTabHost.newTabSpec(ACTION_TAB).setIndicator("Actions")
@@ -68,14 +69,16 @@ public class TransitionActivity extends FragmentActivity {
 				.setIndicator("Conditions").setContent(R.id.tab2));
 		
 		
-
+		int selected = 0;
 		values = new State[fsm.size() - 1];
 		int j = 0;
 		for (int i = 0; i < fsm.size(); i++) {
-			Log.d("transact", "" + i);
 			if (fsm.get(i) != state) {
 
 				values[j] = fsm.get(i);
+				if(fsm.get(i).equals(transition.getToState())){
+					selected=j;
+				}
 				j++;
 			}
 
@@ -89,13 +92,14 @@ public class TransitionActivity extends FragmentActivity {
 				android.R.id.text1, values);
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		spinner.setAdapter(adapter);
-
+		spinner.setSelection(selected);
 		spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
 
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view,
 					int pos, long id) {
 				transition.setToState(values[pos]);
+			
 			}
 
 			@Override
@@ -127,11 +131,17 @@ public class TransitionActivity extends FragmentActivity {
 		case R.id.addDOaction:
 			showActionDialog(new DigitalOutAction());
 			break;
+		case R.id.addTMRaction:
+			showActionDialog(new TimerAction());
+			break;
 		case R.id.ai_condition:
 			showConditionDialog(ConditionTypes.AI);
 			break;
 		case R.id.di_condition:
 			showConditionDialog(ConditionTypes.DI);
+			break;
+		case R.id.tmr_condition:
+			showConditionDialog(ConditionTypes.TMR);
 			break;
 		case R.id.operation_condition:
 			showConditionDialog(ConditionTypes.OPERATION);
@@ -161,6 +171,9 @@ public class TransitionActivity extends FragmentActivity {
 			break;
 		case AI:
 			condition = new AnalogInCondition(parent);
+			break;
+		case TMR:
+			condition = new TimerCondition(parent);
 			break;
 		default:
 			return;

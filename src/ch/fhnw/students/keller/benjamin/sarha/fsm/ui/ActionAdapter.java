@@ -83,7 +83,6 @@ public class ActionAdapter extends BaseAdapter {
 		final Action action = (Action) getItem(pos);
 		holder.action = action;
 		View v = convertView;
-		System.out.println(action);
 		switch (Action.ActionType.values()[getItemViewType(pos)]) {
 		case AO:
 			if (v == null) {
@@ -112,6 +111,18 @@ public class ActionAdapter extends BaseAdapter {
 			holder.tbValue
 					.setOnCheckedChangeListener(holder.tbCheckedChangedListener);
 			holder.tbValue.setChecked(action.getValue() == 1 ? true : false);
+			break;
+		case TMR:
+			if (v == null) {
+				v = inflater.inflate(R.layout.fsm_listviewitem_action_timer,
+						null);
+			}
+			holder.tbValue = (ToggleButton) v.findViewById(R.id.tbValue);
+			holder.tvValue = (TextView) v.findViewById(R.id.tvValue);
+			holder.btDelete = (Button) v.findViewById(R.id.btDelete);
+			holder.tvName = (TextView) v.findViewById(R.id.tvName);
+			holder.btDelete.setOnClickListener(holder.btDeleteClickListener);
+			holder.tvValue.setText("Restart");
 			break;
 		}
 

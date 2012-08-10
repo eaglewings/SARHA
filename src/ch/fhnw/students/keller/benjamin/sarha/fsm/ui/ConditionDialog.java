@@ -23,12 +23,15 @@ import ch.fhnw.students.keller.benjamin.sarha.config.IO;
 import ch.fhnw.students.keller.benjamin.sarha.config.IO.AnalogComperator;
 import ch.fhnw.students.keller.benjamin.sarha.config.IO.AnalogIn;
 import ch.fhnw.students.keller.benjamin.sarha.config.IO.DigitalIn;
+import ch.fhnw.students.keller.benjamin.sarha.config.IO.Timer;
 import ch.fhnw.students.keller.benjamin.sarha.config.IOs;
 import ch.fhnw.students.keller.benjamin.sarha.fsm.AnalogInCondition;
 import ch.fhnw.students.keller.benjamin.sarha.fsm.Condition;
 import ch.fhnw.students.keller.benjamin.sarha.fsm.DigitalInCondition;
 import ch.fhnw.students.keller.benjamin.sarha.fsm.OperationCondition;
 import ch.fhnw.students.keller.benjamin.sarha.fsm.OperationCondition.OperationType;
+import ch.fhnw.students.keller.benjamin.sarha.fsm.TimerCondition;
+import ch.fhnw.students.keller.benjamin.timerpicker.TimerPicker;
 
 public class ConditionDialog extends DialogFragment {
 	private Button btOk, btCancel;
@@ -40,6 +43,7 @@ public class ConditionDialog extends DialogFragment {
 	private Spinner spIo;
 	private TextView tvValue;
 	private RadioButton rbGreaterThan, rbLessThan;
+	private TimerPicker tpTimer;
 	private boolean newCondition;
 	private OnSeekBarChangeListener sbChangeListener = new OnSeekBarChangeListener() {
 		@Override
@@ -106,6 +110,12 @@ public class ConditionDialog extends DialogFragment {
 			spIo.setAdapter(new IoDialogSpinnerAdapter(context, config,
 					IO.Type.DI));
 			break;
+		case TMR:
+			v = inflater.inflate(R.layout.fsm_dialog_condition_timer, container, false);
+			spIo = (Spinner) v.findViewById(R.id.spIo);
+			spIo.setAdapter(new IoDialogSpinnerAdapter(context, config, IO.Type.TMR));
+			tpTimer = (TimerPicker) v.findViewById(R.id.tpTimer);
+			break;
 		default:
 			break;
 		}
@@ -144,6 +154,9 @@ public class ConditionDialog extends DialogFragment {
 			case DI:
 				title = "New Digital Input Condition";
 				break;
+			case TMR:
+				title = "New Timer Condition";
+				break;
 			default:
 				break;
 			}
@@ -178,6 +191,13 @@ public class ConditionDialog extends DialogFragment {
 				DigitalInCondition dic = (DigitalInCondition) condition;
 				spIo.setSelection(((IoDialogSpinnerAdapter) spIo.getAdapter())
 						.getPosition(dic.getDi()));
+				break;
+			case TMR:
+				title = "Edit Timer Condition";
+				TimerCondition tc = (TimerCondition) condition;
+				spIo.setSelection(((IoDialogSpinnerAdapter) spIo.getAdapter())
+						.getPosition(tc.getTmr()));
+				tpTimer.setValues(tc.getH(), tc.getMin(), tc.getSec(), tc.getHsec());
 				break;
 			default:
 				break;
@@ -221,6 +241,13 @@ public class ConditionDialog extends DialogFragment {
 			DigitalInCondition dic = (DigitalInCondition) condition;
 			dic.setDi((DigitalIn) ((IOs) spIo.getSelectedItem()).address);
 			condition = dic;
+			break;
+		case TMR:
+			TimerCondition tc = (TimerCondition) condition;
+			tc.setTmr((Timer) ((IOs) spIo.getSelectedItem()).address);
+			tc.setValues(tpTimer.getH(), tpTimer.getMin(), tpTimer.getSec(), tpTimer.getHsec());
+			condition = tc;
+			
 			break;
 		default:
 			break;

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+        
+        <ProgressBar
+        android:id="@+id/pbProgress"
+        style="?android:attr/progressBarStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" 
+        android:layout_centerHorizontal="true"/>
+    </RelativeLayout>
+	
+	
+
+    <Button
+        android:id="@+id/btRefresh"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Refresh" />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@android:drawable/divider_horizontal_dim_dark" />
+
+    <ListView
+        android:id="@+id/lvDevices"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+    </ListView>
+	
+    <LinearLayout
+        android:id="@+id/buttonbar"
+        style="@android:style/ButtonBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center" >
+
+        <Button
+            android:id="@+id/btCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Offline" />
+
+        <Button
+            android:id="@+id/btOk"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="OK" />
+    </LinearLayout>
+
+    
+
+</LinearLayout>

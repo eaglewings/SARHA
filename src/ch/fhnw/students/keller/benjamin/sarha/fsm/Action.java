@@ -15,7 +15,7 @@ public abstract class Action implements Serializable, LuaParseable {
 
 
 	public enum ActionType{
-		DO,AO;
+		DO,AO,TMR;
 	}
 	
 	private AddressIdentifier ai;
@@ -26,8 +26,14 @@ public abstract class Action implements Serializable, LuaParseable {
 		if(action instanceof DigitalOutAction){
 			return ActionType.DO;
 		}
-		else{
+		else if(action instanceof AnalogOutAction){
 			return ActionType.AO;
+		}
+		else if(action instanceof TimerAction){
+			return ActionType.TMR;
+		}
+		else{
+			return null;
 		}
 	}
 

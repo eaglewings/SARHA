@@ -12,6 +12,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.SeekBar;
@@ -27,6 +29,7 @@ import ch.fhnw.students.keller.benjamin.sarha.config.IO;
 import ch.fhnw.students.keller.benjamin.sarha.config.IO.AnalogOut;
 import ch.fhnw.students.keller.benjamin.sarha.config.IO.DigitalOut;
 import ch.fhnw.students.keller.benjamin.sarha.config.IOs;
+import ch.fhnw.students.keller.benjamin.sarha.config.Timer;
 import ch.fhnw.students.keller.benjamin.sarha.fsm.Action;
 
 public class ActionDialog extends DialogFragment {
@@ -36,7 +39,7 @@ public class ActionDialog extends DialogFragment {
 	private Action action;
 	private SeekBar sbValue;
 	private Spinner spIo;
-	private TextView tvValue;
+	private TextView tvValue, tvTimer;
 	private ToggleButton tbValue;
 	private boolean newAction;
 	private OnSeekBarChangeListener sbChangeListener = new OnSeekBarChangeListener() {
@@ -97,22 +100,41 @@ public class ActionDialog extends DialogFragment {
 					IO.Type.DO));
 			tbValue = (ToggleButton) v.findViewById(R.id.tbValue);
 			break;
+		case TMR:
+			v = inflater.inflate(R.layout.fsm_dialog_action_timer, container,
+					false);
+			spIo = (Spinner) v.findViewById(R.id.spIo);
+			spIo.setAdapter(new IoDialogSpinnerAdapter(context, config,
+					IO.Type.TMR));
+			spIo.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+				@Override
+				public void onItemSelected(AdapterView<?> parent, View view,
+						int pos, long id) {
+					tvTimer.setText(((IOs) spIo.getSelectedItem()).name);
+				}
+
+				@Override
+				public void onNothingSelected(AdapterView<?> arg0) {
+					tvTimer.setText("");
+				}
+			});
+			tvTimer = (TextView) v.findViewById(R.id.tvTimer);
 		default:
 			break;
 		}
 		btDelete = (Button) v.findViewById(R.id.btDelete);
 		btDelete.setOnClickListener(new OnClickListener() {
-			
+
 			@Override
 			public void onClick(View v) {
 				AppData.currentWorkingTransition.removeAction(action);
 				ActionDialog.this.dismiss();
 			}
 		});
-		if(newAction){
+		if (newAction) {
 			btDelete.setVisibility(View.GONE);
-		}
-		else{
+		} else {
 			btDelete.setVisibility(View.VISIBLE);
 		}
 		btOk = (Button) v.findViewById(R.id.btOk);
@@ -148,6 +170,10 @@ public class ActionDialog extends DialogFragment {
 				title = "New Digital Output Action";
 
 				break;
+			case TMR:
+				title = "New Timer Action";
+
+				break;
 			default:
 				break;
 			}
@@ -164,6 +190,11 @@ public class ActionDialog extends DialogFragment {
 			case DO:
 				title = "Edit Digital Output Action";
 				tbValue.setChecked(action.getValue() > 0 ? true : false);
+				spIo.setSelection(((IoDialogSpinnerAdapter) spIo.getAdapter())
+						.getPosition(action.getAddressIdentifier()));
+				break;
+			case TMR:
+				title = "Edit Timer Action";
 				spIo.setSelection(((IoDialogSpinnerAdapter) spIo.getAdapter())
 						.getPosition(action.getAddressIdentifier()));
 				break;
@@ -194,6 +225,10 @@ public class ActionDialog extends DialogFragment {
 		case DO:
 			action.setValue(tbValue.isChecked() ? 1 : 0);
 			action.setAddressIdentifier((DigitalOut) ((IOs) spIo
+					.getSelectedItem()).address);
+			break;
+		case TMR:
+			action.setAddressIdentifier((IO.Timer) ((IOs) spIo
 					.getSelectedItem()).address);
 			break;
 		default:

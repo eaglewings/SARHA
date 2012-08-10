@@ -11,7 +11,6 @@ public class DeviceModel extends Observable {
 	private boolean programRunning = false, debugActive = false;
 	public DeviceModel(Config config) {
 		this.config = config;
-		config.getAssignedAddresses();
 	}
 
 	public Config getConfig() {
@@ -20,12 +19,14 @@ public class DeviceModel extends Observable {
 
 	public void programRun() {
 		programRunning = true;
+		CommManager.protocol.programRun();
 		setChanged();
 		notifyObservers();
 	}
 
 	public void programStop() {
 		programRunning = false;
+		CommManager.protocol.programStop();
 		setChanged();
 		notifyObservers();
 	}
@@ -59,6 +60,7 @@ public class DeviceModel extends Observable {
 		if( io!=null){
 			setIOvalue(io,value);
 		}
+		io.notifyObservers();
 	}
 
 	public void setIOoverrideValue(IOs io, int value) {

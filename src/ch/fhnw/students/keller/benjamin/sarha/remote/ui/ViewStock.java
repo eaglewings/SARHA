@@ -35,9 +35,11 @@ public class ViewStock {
 	private Handler handler;
 	private Protocol protocol;
 
-	public ViewStock(Context context, DeviceModel deviceModel){}
+	public ViewStock(Context context, DeviceModel deviceModel) {
+	}
+
 	public ViewStock(Context context, DeviceModel deviceModel, Protocol protocol) {
-		this.protocol= protocol;
+		this.protocol = protocol;
 		views = new ArrayList<View>();
 		System.out.println("views");
 		this.deviceModel = deviceModel;
@@ -46,17 +48,19 @@ public class ViewStock {
 		inflater = (LayoutInflater) context
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		System.out.println("inflater");
-		handler= new Handler();
+		handler = new Handler();
 		for (IO.Type type : config.types) {
+			if(type!=IO.Type.TMR){
 			for (IOs io : config.ios.get(type)) {
 				System.out.println(type);
 				views.add(createView(io, type));
-			}
+			}}
 		}
 		System.out.println("viewstock Constructor end");
 	}
 
 	public void addViews(ViewGroup parent) {
+		parent.removeAllViews();
 		int i = 0;
 		for (View view : views) {
 			parent.addView(view, i);
@@ -81,45 +85,43 @@ public class ViewStock {
 		switch (type) {
 
 		case DO:
-			
-			view = inflater.inflate(R.layout.remote_listviewitem_digital_out, null);
-			
+
+			view = inflater.inflate(R.layout.remote_listviewitem_digital_out,
+					null);
+
 			tag.toggleButton = (ToggleButton) view
 					.findViewById(R.id.toggleButton);
-			if(tag.toggleButton==null){
-				System.out.println("button==null");
-			}
-			else{
-				System.out.println("button!=null");
-			}
-			
+
 			tag.toggleButton.setOnClickListener(tag.toggleClickListener);
-			System.out.println("listener");
 			tag.ivDO = (ImageView) view.findViewById(R.id.imageView2);
 
 			break;
 		case DI:
-			view = inflater.inflate(R.layout.remote_listviewitem_digital_in, null);
+			view = inflater.inflate(R.layout.remote_listviewitem_digital_in,
+					null);
 			tag.toggleButton = (ToggleButton) view
 					.findViewById(R.id.toggleButton1);
 			tag.toggleButton.setOnClickListener(tag.toggleClickListener);
 			tag.ivDI = (ImageView) view.findViewById(R.id.imageView2);
 			break;
 		case AO:
-			view = inflater.inflate(R.layout.remote_listviewitem_analog_out, null);
+			view = inflater.inflate(R.layout.remote_listviewitem_analog_out,
+					null);
 
 			tag.seekBar = (SeekBar) view.findViewById(R.id.seekBar1);
 			tag.seekBar.setOnSeekBarChangeListener(tag.seekBarListener);
 			tag.seekBar.setThumb(tag.thumbao);
-			tag.seekBar.setThumbOffset(12);
+			tag.seekBar.setThumbOffset(0);
 			break;
 		case AI:
-			view = inflater.inflate(R.layout.remote_listviewitem_analog_in, null);
+			view = inflater.inflate(R.layout.remote_listviewitem_analog_in,
+					null);
 
 			tag.seekBar = (SeekBar) view.findViewById(R.id.seekBar1);
 			tag.seekBar.setOnSeekBarChangeListener(tag.seekBarListener);
 			tag.seekBar.setThumb(tag.thumbai);
-			tag.seekBar.setThumbOffset(12);
+			tag.seekBar.setThumbOffset(0);
+			tag.seekBar.setMax(4095);
 
 			break;
 		}
@@ -172,10 +174,17 @@ public class ViewStock {
 				t.show();
 
 				if (io.isOverridden()) {
-					
+
 					deviceModel.setIOreal(io);
+					if (protocol != null) {
+						protocol.setAddressReal(io);
+					}
 				} else {
 					deviceModel.setIOoverride(io);
+					if (protocol != null) {
+						protocol.setAddressValue(io,
+								(toggleButton.isChecked()) ? 1 : 0);
+					}
 				}
 			}
 		};
@@ -193,10 +202,11 @@ public class ViewStock {
 
 					System.out.println("onclick" + io.getOverrideValue());
 				}
-				else{
-					protocol.setAddressValue(io,(((ToggleButton) v).isChecked()) ? 1 : 0);
-				}
 				
+					if (protocol != null) {
+						protocol.setAddressValue(io,
+								(((ToggleButton) v).isChecked()) ? 1 : 0);
+					}
 
 			}
 		};
@@ -222,13 +232,15 @@ public class ViewStock {
 					t.setText("set;io;" + io.address + ";" + progress);
 					t.show();
 					if (deviceModel.isProgramRunning() && deviceModel.isDebug()) {
-						deviceModel.setIOoverrideValue(io,
-								progress);
+						deviceModel.setIOoverrideValue(io, progress);
 						deviceModel.setIOoverride(io);
-						
-					} else {
-						protocol.setAddressValue(io, progress);
-					}
+
+					} 
+					
+						if (protocol != null) {
+							protocol.setAddressValue(io, progress);
+						}
+					
 
 					switch (io.type) {
 					case AO:
@@ -246,11 +258,10 @@ public class ViewStock {
 		@Override
 		public void update(Observable arg0, Object arg1) {
 			handler.post(updateRunnable);
-			
+
 		}
-		
-		
-		private Runnable updateRunnable = new Runnable(){
+
+		private Runnable updateRunnable = new Runnable() {
 
 			@Override
 			public void run() {
@@ -263,7 +274,6 @@ public class ViewStock {
 							toggleButton
 									.setChecked((io.getOverrideValue() >= 1) ? true
 											: false);
-							System.out.println("update" + io.getOverrideValue());
 						} else {
 							toggleButton.setVisibility(View.INVISIBLE);
 						}
@@ -275,8 +285,9 @@ public class ViewStock {
 
 					} else {
 						toggleButton.setVisibility(View.VISIBLE);
-						toggleButton.setChecked((io.getOverrideValue() >= 1) ? true
-								: false);
+						toggleButton
+								.setChecked((io.getOverrideValue() >= 1) ? true
+										: false);
 						ivDO.setImageDrawable(null);
 					}
 
@@ -286,15 +297,16 @@ public class ViewStock {
 					if (deviceModel.isProgramRunning() && deviceModel.isDebug()) {
 
 						toggleButton.setVisibility(View.VISIBLE);
-						toggleButton.setChecked((io.getOverrideValue() >= 1) ? true
-								: false);
+						toggleButton
+								.setChecked((io.getOverrideValue() >= 1) ? true
+										: false);
 					} else {
 						toggleButton.setVisibility(View.INVISIBLE);
 					}
 					if (io.getValue() > 0) {
-						ivDI.setImageResource(R.drawable.dion);
-					} else {
 						ivDI.setImageResource(R.drawable.dioff);
+					} else {
+						ivDI.setImageResource(R.drawable.dion);
 					}
 					break;
 
@@ -302,7 +314,7 @@ public class ViewStock {
 					prog = seekBar.getProgress();
 					if (deviceModel.isProgramRunning()) {
 						if (deviceModel.isDebug()) {
-							
+
 							seekBar.setOnTouchListener(null);
 							seekBar.setProgress(io.getOverrideValue());
 							seekBar.setProgressDrawable(seekBarDebug);
@@ -317,21 +329,20 @@ public class ViewStock {
 						}
 
 					} else {
-						
+
 						seekBar.setOnTouchListener(null);
 						seekBar.setProgressDrawable(seekBarNormal);
 						seekBar.setProgress(io.getValue());
 						thumbao.setAlpha(255);
-						
-						
+
 					}
 					seekBar.setProgress(seekBar.getMax());
-					//seekBar.invalidate();
+					// seekBar.invalidate();
 					seekBar.setProgress(prog);
 					break;
 				case AI:
-					
-					if ( deviceModel.isDebug() && deviceModel.isProgramRunning()) {
+
+					if (deviceModel.isDebug() && deviceModel.isProgramRunning()) {
 
 						thumbai.setAlpha(255);
 						seekBar.setOnTouchListener(null);
@@ -343,24 +354,25 @@ public class ViewStock {
 						thumbai.setAlpha(0);
 						seekBar.setOnTouchListener(seekbarDisableTouchListener);
 						seekBar.setProgress(io.getValue());
-						
 
 					}
-					
+
 					break;
 				}
 				if (deviceModel.isDebug() && deviceModel.isProgramRunning()) {
 					if (io.isOverridden()) {
-						ivOverride.setImageResource(R.drawable.remote_override_enabled);
+						ivOverride
+								.setImageResource(R.drawable.remote_override_enabled);
 					} else {
-						ivOverride.setImageResource(R.drawable.remote_override_disabled);
+						ivOverride
+								.setImageResource(R.drawable.remote_override_disabled);
 					}
 				} else {
 					ivOverride.setImageDrawable(null);
 				}
-				
+
 			}
-			
+
 		};
 	}
 

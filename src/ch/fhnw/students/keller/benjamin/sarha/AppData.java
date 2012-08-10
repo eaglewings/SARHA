@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import android.content.Context;
 import android.os.Handler;
 import ch.fhnw.students.keller.benjamin.sarha.comm.Device;
+import ch.fhnw.students.keller.benjamin.sarha.comm.DeviceModel;
 import ch.fhnw.students.keller.benjamin.sarha.config.Config;
 import ch.fhnw.students.keller.benjamin.sarha.fsm.State;
 import ch.fhnw.students.keller.benjamin.sarha.fsm.StateMachine;
@@ -53,6 +54,9 @@ public class AppData implements Serializable{
 
 	public static AppData data;
 
+	public static DeviceModel currentWorkingDeviceModel;
+	
+
 	private AppData(Context context) {
 		if(context==null){
 			System.out.println("hui context=null");
@@ -64,14 +68,15 @@ public class AppData implements Serializable{
 	static public void createInstance(Context context) {
 		System.out.println("create instance"+context.getFilesDir());
 		if (data == null) {
-			System.out.println("first null");
 			data = loadAppData(context);
 			if (data == null) {
-				System.out.println("second null");
 				data = new AppData(context);
 
 			}
 		}
+	}
+	static public void resetAppData(Context context){
+		data= new AppData(context);
 	}
 
 	private static AppData loadAppData(Context context) {

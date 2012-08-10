@@ -2,6 +2,7 @@ package ch.fhnw.students.keller.benjamin.sarha.config.ui;
 
 import java.util.ArrayList;
 
+import ch.fhnw.students.keller.benjamin.sarha.Utils;
 import ch.fhnw.students.keller.benjamin.sarha.config.Config;
 import ch.fhnw.students.keller.benjamin.sarha.config.IO;
 
@@ -39,7 +40,7 @@ public class ConfigManagerAdapter extends ArrayAdapter<Config> implements ListAd
 		TextView txtView1 = (TextView) v.findViewById(android.R.id.text1);
 		TextView txtView2 = (TextView) v.findViewById(android.R.id.text2);
 		txtView1.setText(config.name);
-		txtView2.setText(mktext2(config));
+		txtView2.setText(Utils.idString(config.createId, config.getChangeId()));
 		return v;
 	}
 

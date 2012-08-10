@@ -60,6 +60,7 @@ public class IODialogManager extends DialogFragment {
 			v = inflater.inflate(R.layout.config_dialog_analog, container,
 					false);
 			scaleEdit = (EditText) v.findViewById(R.id.scale);
+
 			unitEdit = (EditText) v.findViewById(R.id.unit);
 			scaleEdit.setText(((AnalogIn) io).scale);
 			unitEdit.setText(((AnalogIn) io).unit);
@@ -75,9 +76,12 @@ public class IODialogManager extends DialogFragment {
 			break;
 		case DI:
 		case DO:
-			v = inflater.inflate(R.layout.config_dialog_digital, container,
+		case TMR:
+			v = inflater.inflate(R.layout.config_dialog_digital_timer, container,
 					false);
 			break;
+
+
 		default:
 			break;
 		}

@@ -4,6 +4,7 @@
     <item android:id="@+id/menuitemexportconfig" android:title="Export"></item>
     <item android:id="@+id/menuitemcopyconfig" android:title="Copy"></item>
     <item android:id="@+id/menuitemimportconfig" android:title="Import"></item>
+    <item android:id="@+id/menuitemdownloadconfig" android:title="Download"></item>
 
     
 
