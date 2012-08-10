@@ -35,6 +35,7 @@ public class ConfigManagerActivity extends FragmentActivity {
 		setContentView(R.layout.config_activity_configmanager);
 		
 		ListView list = (ListView) findViewById(R.id.listView1);
+		
 		adapter= new ConfigManagerAdapter(this, AppData.data.configs);
 		list.setAdapter(adapter);
 		

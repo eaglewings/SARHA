@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 import android.content.Context;
 import android.os.Handler;
+import android.widget.TextView;
 import ch.fhnw.students.keller.benjamin.sarha.comm.Device;
 import ch.fhnw.students.keller.benjamin.sarha.comm.DeviceModel;
 import ch.fhnw.students.keller.benjamin.sarha.config.Config;
@@ -55,12 +56,10 @@ public class AppData implements Serializable{
 	public static AppData data;
 
 	public static DeviceModel currentWorkingDeviceModel;
+	public static TextView debugTextView;
 	
 
 	private AppData(Context context) {
-		if(context==null){
-			System.out.println("hui context=null");
-		}
 		AppData.context = context;
 		System.out.println("data created ");
 	}
@@ -71,12 +70,14 @@ public class AppData implements Serializable{
 			data = loadAppData(context);
 			if (data == null) {
 				data = new AppData(context);
-
 			}
+		}
+		if(data.stateMachines==null || data.devices==null || data.configs==null){ //data is corrupt
+			resetAppData(context);
 		}
 	}
 	static public void resetAppData(Context context){
-		data= new AppData(context);
+		data= new AppData(context.getApplicationContext());
 	}
 
 	private static AppData loadAppData(Context context) {

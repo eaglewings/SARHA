@@ -11,6 +11,7 @@ import java.util.Arrays;
 import android.content.Context;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.MulticastLock;
+import android.widget.MultiAutoCompleteTextView.CommaTokenizer;
 import ch.fhnw.students.keller.benjamin.sarha.AppData;
 
 public class DeviceFinder extends Thread {
@@ -20,7 +21,7 @@ public class DeviceFinder extends Thread {
 	private MulticastLock ml = null;
 	private Context context;
 	private ArrayList<Device> storedDevices = AppData.data.devices;
-	
+
 	private static final int UDP_PORT = 55555;
 	private static final int DATAGRAM_SOCKET_TIMEOUT = 8000;
 	private static final int UDP_PACKET_LENGTH = 110;
@@ -28,27 +29,39 @@ public class DeviceFinder extends Thread {
 	private static final int DEVICE_NAME_STRING_LENGTH = 26;
 	private static final int DEVICE_ID_BYTES_START = 86;
 	private static final int DEVICE_ID_BYTES_LENGTH = 6;
-	
-	public DeviceFinder(Context context){
-		this.context=context;
+
+	public DeviceFinder(Context context) {
+		this.context = context;
 		this.start();
 	}
-	
+
 	public void run() {
 		System.out.println("DeviceFinder started");
 		byte[] buf = new byte[2048];
 		DatagramPacket pkt = new DatagramPacket(buf, buf.length);
-		
+
 		for (Device d : storedDevices) {
-				d.setState(DeviceState.UNKNOWN); //reset all stored devices
+			d.setState(DeviceState.UNKNOWN); // reset all stored devices which
+												// are not online
+			if (d.equals(CommManager.connectedDevice)) {
+				System.out.println("equals connected");
+				if (CommManager.protocol.getAck()) {
+					System.out.println("getack true");
+					d.setState(DeviceState.ONLINE);
+				}
+				else{
+					CommManager.disconnect();
+				}
+			}
+
 		}
 		notifyDeviceListObservers();
-		
+
 		aquireMulticastLock();
 
 		try {
-			skt = new DatagramSocket(UDP_PORT); //open new DatagramSocket
-			skt.setSoTimeout(DATAGRAM_SOCKET_TIMEOUT); //set timeout
+			skt = new DatagramSocket(UDP_PORT); // open new DatagramSocket
+			skt.setSoTimeout(DATAGRAM_SOCKET_TIMEOUT); // set timeout
 		} catch (SocketException e) {
 			e.printStackTrace();
 			cleanup();
@@ -62,22 +75,25 @@ public class DeviceFinder extends Thread {
 				cleanup();
 				return;
 			}
-		} while (process(pkt)); //process packages as long as there is no exception
+		} while (process(pkt)); // process packages as long as there is no
+								// exception
 		cleanup();
-		
+
 		System.out.println("devicefinder finished without exception");
 	}
-/**
- * Enable UDP boradcast by aquiring Multicast Lock; UDP
- * Broadcasts are otherways dumped by default for saving battery lifetime
- */
-	
+
+	/**
+	 * Enable UDP boradcast by aquiring Multicast Lock; UDP Broadcasts are
+	 * otherways dumped by default for saving battery lifetime
+	 */
+
 	private void aquireMulticastLock() {
 		WifiManager wifi;
 		wifi = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-		ml = wifi.createMulticastLock("Receive UDP Broadcasts from SARHA control units");
+		ml = wifi
+				.createMulticastLock("Receive UDP Broadcasts from SARHA control units");
 		ml.setReferenceCounted(false);
-		ml.acquire();	
+		ml.acquire();
 	}
 
 	private boolean process(DatagramPacket pkt) {
@@ -86,12 +102,14 @@ public class DeviceFinder extends Thread {
 			System.out.println("length io");
 			String name = extractDeviceName(data);
 			String boardId = extractDeviceID(data);
-			
-			Device device = new Device(new String(name).trim(), boardId,
-					new InetSocketAddress(pkt.getAddress(), CommManager.TCP_PORT),
-					DeviceState.CONNECTABLE);
 
-			
+			Device device = new Device(new String(name).trim(), boardId,
+					new InetSocketAddress(pkt.getAddress(),
+							CommManager.TCP_PORT), DeviceState.CONNECTABLE);
+			if (device.equals(CommManager.connectedDevice)) {
+				device.setState(DeviceState.ONLINE);
+			}
+
 			if (scannedDevices.contains(device)) {
 				System.out.println("scanned devices contains device");
 				return false; // Device has been scanned already: stop searching
@@ -118,15 +136,19 @@ public class DeviceFinder extends Thread {
 
 		return true;
 	}
-	private String extractDeviceName(byte[] data){
-		byte[] name = Arrays.copyOfRange(data, DEVICE_NAME_STRING_START, DEVICE_NAME_STRING_START+DEVICE_NAME_STRING_LENGTH);
+
+	private String extractDeviceName(byte[] data) {
+		byte[] name = Arrays.copyOfRange(data, DEVICE_NAME_STRING_START,
+				DEVICE_NAME_STRING_START + DEVICE_NAME_STRING_LENGTH);
 		return (new String(name)).trim();
 	}
-	private String extractDeviceID(byte[] data){
-		byte[] boardId = Arrays.copyOfRange(data, DEVICE_ID_BYTES_START, DEVICE_ID_BYTES_START+DEVICE_ID_BYTES_LENGTH);
+
+	private String extractDeviceID(byte[] data) {
+		byte[] boardId = Arrays.copyOfRange(data, DEVICE_ID_BYTES_START,
+				DEVICE_ID_BYTES_START + DEVICE_ID_BYTES_LENGTH);
 		return new String(boardId);
 	}
-	
+
 	public void cleanup() {
 		if (skt != null) {
 			skt.close();
@@ -141,17 +163,14 @@ public class DeviceFinder extends Thread {
 		}
 		notifyDeviceListObservers();
 	}
-	
-	private void notifyDeviceListObservers(){
+
+	private void notifyDeviceListObservers() {
 		AppData.handler.post(new Runnable() {
 			public void run() {
 				CommManager.notifyDeviceListObservers();
 			}
 		});
-		
+
 	}
 
 }
-	
-	
-

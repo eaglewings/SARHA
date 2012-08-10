@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -62,7 +63,9 @@ public class Protocol {
 								PROGRAM="program",
 								RUN="run",
 								STOP="stop",
-								REAL="real";
+								REAL="real",
+								DBG="dbg",
+								DEBUG="debug";
 								
 	// @formatter:on
 	protected static final long ACK_TIMEOUT = 2000;
@@ -82,6 +85,7 @@ public class Protocol {
 	byte[] commandBuffer = new byte[MAX_COMMAND_LENGTH];
 	byte[] dataBuffer = new byte[BLOCKSIZE + 1];
 	private DeviceModel deviceModel;
+	private AtomicBoolean program = new AtomicBoolean();
 
 	public Protocol(BufferedInputStream in, BufferedOutputStream out) {
 		this.in = in;
@@ -98,8 +102,9 @@ public class Protocol {
 		sendCommand(SET, IO, io.address.toString(), Integer.toString(value));
 		waitAck();
 	}
-	public void setAddressReal(IOs io){
-		sendCommand(SET,IO,io.address.toString(),REAL);
+
+	public void setAddressReal(IOs io) {
+		sendCommand(SET, IO, io.address.toString(), REAL);
 	}
 
 	public boolean setConfig(Config cfg, ArrayBlockingQueue<Integer> queue) {
@@ -109,34 +114,34 @@ public class Protocol {
 			System.out.println("setconfig false");
 			return false;
 		}
-		sendCommand(SET,STORE,CONFIGID,cfg.name,cfg.createId+"",cfg.getChangeId()+"");
-		if(waitAck()){
-			String str="";
+		sendCommand(SET, STORE, CONFIGID, cfg.name, cfg.createId + "",
+				cfg.getChangeId() + "");
+		if (waitAck()) {
+			String str = "";
 			ArrayList<AddressIdentifier> addresses = cfg.getUpdateAddresses();
-			for (int i = 0; i < addresses.size()-1; i++) {
-				
-				str+=addresses.get(i).toString();
-				str+=S;
+			for (int i = 0; i < addresses.size() - 1; i++) {
+
+				str += addresses.get(i).toString();
+				str += S;
 			}
-			str+=addresses.get(addresses.size()-1).toString();
-			if(sendCommand(SET,STORE,UPDATE,str)){
+			str += addresses.get(addresses.size() - 1).toString();
+			if (sendCommand(SET, STORE, UPDATE, str)) {
 				return waitAck();
 			}
-			
-			
+
 		}
 		return false;
-		
 
 	}
-	public boolean setStateMachine(StateMachine stateMachine, ArrayBlockingQueue<Integer> queue){
+
+	public boolean setStateMachine(StateMachine stateMachine,
+			ArrayBlockingQueue<Integer> queue) {
 		String command = C.SET + S + FILE + S + STATEMACHINEOBJECT + S;
 		if (!sendObject(command, stateMachine, queue)) {
 			System.out.println("setconfig false");
 			return false;
 		}
-		
-		
+
 		command = C.SET + S + FILE + S + STATEMACHINELUA + S;
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		try {
@@ -145,15 +150,14 @@ public class Protocol {
 			e.printStackTrace();
 			return false;
 		}
-		if(!sendByteArrayStream(command, baos, queue)){
+		if (!sendByteArrayStream(command, baos, queue)) {
 			return false;
 		}
-			
-		return sendCommand(SET,STORE,STATEMACHINEID,stateMachine.getName(),stateMachine.createId+"",stateMachine.getChangeId()+"");
+
+		return sendCommand(SET, STORE, STATEMACHINEID, stateMachine.getName(),
+				stateMachine.createId + "", stateMachine.getChangeId() + "");
 	}
-	
-	
-	
+
 	public Config getConfig(ArrayBlockingQueue<Integer> queue) {
 		byte[] databuffer = new byte[BLOCKSIZE + 1];
 
@@ -176,7 +180,7 @@ public class Protocol {
 						int filesize = Integer.parseInt(strData);
 						queue.offer(filesize);
 						mode = ReceiveMode.DATA_MODE;
-						
+
 						int blocks = (int) Math.ceil((float) filesize
 								/ BLOCKSIZE);
 						ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -202,9 +206,9 @@ public class Protocol {
 									} else {
 										baos.write(Arrays.copyOfRange(
 												databuffer, 0, BLOCKSIZE));
-										queue.offer((i+1)*BLOCKSIZE);
+										queue.offer((i + 1) * BLOCKSIZE);
 									}
-									
+
 									sendCommand("" + C.ACK);
 									continue;
 
@@ -252,7 +256,6 @@ public class Protocol {
 		}
 	}
 
-
 	public void setRemote(boolean onOff) {
 		if (onOff) {
 			sendCommand(SET, REMOTE, ON);
@@ -263,6 +266,33 @@ public class Protocol {
 		}
 	}
 
+	public void setDebug(boolean onOff) {
+		if (onOff) {
+			sendCommand(SET, DEBUG, ON);
+			waitAck();
+		} else {
+			sendCommand(SET, DEBUG, OFF);
+			waitAck();
+		}
+	}
+
+	public boolean isProgramRunning() {
+		if (sendCommand(GET, PROGRAM)) {
+			
+			try {
+				synchronized (program) {
+					program.wait(ACK_TIMEOUT);
+				}
+
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+
+				
+			}
+		}
+		// System.out.println("id[0]: "+id[0]+"id[1]: "+id[1] +"id[2]: "+id[2]);
+		return program.get();
+	}
 
 	/**
 	 * Writes bytes to the OutputStream and flushes it
@@ -293,13 +323,13 @@ public class Protocol {
 		return send(command.getBytes());
 	}
 
-	private boolean sendObject(String command, Serializable obj, ArrayBlockingQueue<Integer> queue) {
+	private boolean sendObject(String command, Serializable obj,
+			ArrayBlockingQueue<Integer> queue) {
 
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
 		ObjectOutputStream oos;
-		
-		
+
 		try {
 			oos = new ObjectOutputStream(baos);
 			oos.writeObject(obj);
@@ -310,7 +340,9 @@ public class Protocol {
 		}
 		return sendByteArrayStream(command, baos, queue);
 	}
-	private boolean sendByteArrayStream(String command, ByteArrayOutputStream baos, ArrayBlockingQueue<Integer> queue){
+
+	private boolean sendByteArrayStream(String command,
+			ByteArrayOutputStream baos, ArrayBlockingQueue<Integer> queue) {
 		int size, blocks, nackcount = 0;
 
 		byte[] send = new byte[(BLOCKSIZE + 1)];
@@ -343,7 +375,7 @@ public class Protocol {
 					if (send(send)) {
 						if (waitAck()) {
 							nackcount = 0;
-							queue.offer((i+1)*BLOCKSIZE);
+							queue.offer((i + 1) * BLOCKSIZE);
 							continue;
 						} else if (nackcount < 1) {
 							i--;
@@ -368,14 +400,18 @@ public class Protocol {
 		System.out.println("Protocol.waitAck enter");
 		try {
 			if (commandQueue.poll(ACK_TIMEOUT, TimeUnit.MILLISECONDS) == C.ACK) {
+				System.out.println("Protocol.waitAck leave true");
 				return true;
 			} else {
+				System.out.println("Protocol.waitAck leave false");
 				return false;
 			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
+			System.out.println("Protocol.waitAck leave error");
 			return false;
 		}
+
 	}
 
 	public void receive() {
@@ -425,17 +461,17 @@ public class Protocol {
 		C command = null;
 		try {
 			if (in.available() >= COMMAND_LENGTH) {
-				System.out.println("Protocol.commandfilter available bytes: "
-						+ in.available());
+				// System.out.println("Protocol.commandfilter available bytes: "
+				// + in.available());
 				in.read(commandBuffer, 0, COMMAND_LENGTH);
 				for (C c : C.values()) {
 					if ((new String(
 							Arrays.copyOf(commandBuffer, COMMAND_LENGTH)))
 							.equals(c.toString())) {
 						command = c;
-						System.out
-								.println("Protocol.commandfilter Command recognized: "
-										+ command);
+						// System.out
+						// .println("Protocol.commandfilter Command recognized: "
+						// + command);
 						break;
 					}
 				}
@@ -463,7 +499,7 @@ public class Protocol {
 	}
 
 	private void parseCommand(C command, byte[] commandBuffer) {
-		System.out.println("parseCommand");
+		System.out.println("parseCommand:" + new String(commandBuffer).trim());
 		switch (command) {
 		case ACK:
 			try {
@@ -490,19 +526,22 @@ public class Protocol {
 			}
 			break;
 		case RET:
-			System.out.println(new String(commandBuffer));
+
 			String[] parts = new String(commandBuffer).split(S);
 			if (parts[1].equals(REMOTE)) {
-				ArrayList<AddressIdentifier> adresses = AppData.currentWorkingDeviceModel.getConfig()
-						.getUpdateAddresses();
+				ArrayList<AddressIdentifier> adresses = AppData.currentWorkingDeviceModel
+						.getConfig().getUpdateAddresses();
 				for (int i = 0; i < adresses.size(); i++) {
-					System.out.println(adresses.get(i));
-					AppData.currentWorkingDeviceModel.setIOvalue(adresses.get(i),
-							Integer.parseInt(parts[i+2].trim()));
+					// System.out.println(adresses.get(i));
+					AppData.currentWorkingDeviceModel.setIOvalue(
+							adresses.get(i),
+							Integer.parseInt(parts[i + 2].trim()));
 				}
 
-			} else if (parts[1].equals(CONFIGID) || parts[1].equals(STATEMACHINEID)) {
-				System.out.println("ret: " + new String(commandBuffer));
+			} else if (parts[1].equals(CONFIGID)
+					|| parts[1].equals(STATEMACHINEID)) {
+				// System.out.println("ret: " + new String(commandBuffer));
+				// System.out.println("parts[1]: "+ parts[1]);
 				if (parts.length == 5) {
 					id[0] = parts[2];
 					id[1] = parts[3];
@@ -510,7 +549,28 @@ public class Protocol {
 					synchronized (id) {
 						id.notify();
 					}
-					
+
+				}
+
+			} else if (parts[1].equals(DBG)) {
+
+				if (AppData.debugTextView != null)
+					;
+				final String debug = parts[2].trim();
+				AppData.handler.post(new Runnable() {
+
+					@Override
+					public void run() {
+						AppData.debugTextView.setText(debug);
+
+					}
+				});
+			} else if (parts[1].equals(PROGRAM)) {
+				if (parts.length == 3) {
+					program.set(parts[2].trim().equals("on"));
+					synchronized (program) {
+						program.notify();
+					}
 				}
 			} else {
 				try {
@@ -534,7 +594,7 @@ public class Protocol {
 		default:
 			break;
 		}
-		
+
 		this.commandBuffer = new byte[MAX_COMMAND_LENGTH];
 	}
 
@@ -548,10 +608,11 @@ public class Protocol {
 
 			} catch (InterruptedException e) {
 				e.printStackTrace();
-				System.out.println("error");
+				// System.out.println("error");
 				return null;
 			}
-			System.out.println("id[0]: "+id[0]+"id[1]: "+id[1] +"id[2]: "+id[2]);
+			// System.out.println("id[0]: "+id[0]+"id[1]: "+id[1]
+			// +"id[2]: "+id[2]);
 			return id;
 		}
 		return null;
@@ -570,18 +631,22 @@ public class Protocol {
 				System.out.println("error");
 				return null;
 			}
-			System.out.println("id[0]: "+id[0]+"id[1]: "+id[1] +"id[2]: "+id[2]);
+			// System.out.println("id[0]: "+id[0]+"id[1]: "+id[1]
+			// +"id[2]: "+id[2]);
 			return id;
 		}
 		return null;
 	}
 
 	public void programRun() {
-		sendCommand(SET,PROGRAM,RUN);
-		
+		sendCommand(SET, PROGRAM, ON);
+		waitAck();
+
 	}
-	public void programStop(){
-		sendCommand(SET,PROGRAM,STOP);
+
+	public void programStop() {
+		sendCommand(SET, PROGRAM, OFF);
+		waitAck();
 	}
-	
+
 }

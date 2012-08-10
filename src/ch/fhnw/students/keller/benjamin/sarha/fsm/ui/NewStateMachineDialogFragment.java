@@ -23,6 +23,7 @@ public class NewStateMachineDialogFragment extends DialogFragment {
 	private EditText etName;
 	private Button btOk, btCancel, btDelete;
 	private Spinner spConfig;
+	private ConfigSpinnerAdapter adapter;
 	static NewStateMachineDialogFragment newInstance(StateMachine stateMachine) {
 	       NewStateMachineDialogFragment f = new NewStateMachineDialogFragment();
 	       
@@ -41,7 +42,9 @@ public class NewStateMachineDialogFragment extends DialogFragment {
 		btDelete = (Button) v.findViewById(R.id.btDelete);
 		btCancel = (Button) v.findViewById(R.id.btCancel);
 		spConfig = (Spinner) v.findViewById(R.id.spConfig);
-		spConfig.setAdapter(new ConfigSpinnerAdapter(this.getActivity()));
+		System.out.println("newadapter");
+		adapter = new ConfigSpinnerAdapter(this.getActivity());
+		spConfig.setAdapter(adapter);
 		
 		btCancel.setOnClickListener(new OnClickListener() {
 			

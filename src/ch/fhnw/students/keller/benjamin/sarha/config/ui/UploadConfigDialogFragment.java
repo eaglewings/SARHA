@@ -101,6 +101,7 @@ public class UploadConfigDialogFragment extends DialogFragment {
 						}
 						if (success) {
 							getDialog().dismiss();
+							getActivity().finish();
 						} else {
 							AppData.data.handler.post(new Runnable() {
 

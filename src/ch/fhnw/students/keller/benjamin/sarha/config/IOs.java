@@ -31,13 +31,11 @@ public abstract class IOs extends Observable implements Serializable {
 	}
 
 	public void setOverrideValue(int value) {
-		
 		this.overrideValue = value;
 		setChanged();
 	}
 
 	public void override() {
-		
 		overridden = true;
 		setChanged();
 	}

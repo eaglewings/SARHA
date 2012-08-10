@@ -24,6 +24,7 @@ import ch.fhnw.students.keller.benjamin.sarha.comm.DeviceModel;
 import ch.fhnw.students.keller.benjamin.sarha.comm.Protocol;
 import ch.fhnw.students.keller.benjamin.sarha.config.Config;
 import ch.fhnw.students.keller.benjamin.sarha.config.IO;
+import ch.fhnw.students.keller.benjamin.sarha.config.IO.Type;
 import ch.fhnw.students.keller.benjamin.sarha.config.IOs;
 
 public class ViewStock {
@@ -50,11 +51,12 @@ public class ViewStock {
 		System.out.println("inflater");
 		handler = new Handler();
 		for (IO.Type type : config.types) {
-			if(type!=IO.Type.TMR){
-			for (IOs io : config.ios.get(type)) {
-				System.out.println(type);
-				views.add(createView(io, type));
-			}}
+			if (type != IO.Type.TMR) {
+				for (IOs io : config.ios.get(type)) {
+					System.out.println(type);
+					views.add(createView(io, type));
+				}
+			}
 		}
 		System.out.println("viewstock Constructor end");
 	}
@@ -180,10 +182,16 @@ public class ViewStock {
 						protocol.setAddressReal(io);
 					}
 				} else {
+					System.out.println("clicklistener override");
 					deviceModel.setIOoverride(io);
 					if (protocol != null) {
+						if(io.type==Type.DI || io.type==Type.DO){
 						protocol.setAddressValue(io,
 								(toggleButton.isChecked()) ? 1 : 0);
+						}
+						else{
+							protocol.setAddressValue(io,seekBar.getProgress());
+						}
 					}
 				}
 			}
@@ -195,18 +203,23 @@ public class ViewStock {
 
 				t.setText(io.name + ": " + ((ToggleButton) v).isChecked());
 				t.show();
+				if (protocol != null) {
+					protocol.setAddressValue(io,
+							(((ToggleButton) v).isChecked()) ? 1 : 0);
+				}
 				if (deviceModel.isProgramRunning()) {
 					deviceModel.setIOoverrideValue(io,
 							(((ToggleButton) v).isChecked()) ? 1 : 0);
+					System.out.println("toggleClickListener override");
 					deviceModel.setIOoverride(io);
 
 					System.out.println("onclick" + io.getOverrideValue());
 				}
+				else{
+					((ToggleButton) v).setChecked(io.getValue() >=1);
+				}
+
 				
-					if (protocol != null) {
-						protocol.setAddressValue(io,
-								(((ToggleButton) v).isChecked()) ? 1 : 0);
-					}
 
 			}
 		};
@@ -233,22 +246,13 @@ public class ViewStock {
 					t.show();
 					if (deviceModel.isProgramRunning() && deviceModel.isDebug()) {
 						deviceModel.setIOoverrideValue(io, progress);
+						System.out.println("onProgresschanged user");
 						deviceModel.setIOoverride(io);
 
-					} 
-					
-						if (protocol != null) {
-							protocol.setAddressValue(io, progress);
-						}
-					
+					}
 
-					switch (io.type) {
-					case AO:
-
-						break;
-					case AI:
-
-						break;
+					if (protocol != null) {
+						protocol.setAddressValue(io, progress);
 					}
 				}
 
@@ -286,7 +290,7 @@ public class ViewStock {
 					} else {
 						toggleButton.setVisibility(View.VISIBLE);
 						toggleButton
-								.setChecked((io.getOverrideValue() >= 1) ? true
+								.setChecked((io.getValue() >= 1) ? true
 										: false);
 						ivDO.setImageDrawable(null);
 					}
@@ -360,6 +364,7 @@ public class ViewStock {
 					break;
 				}
 				if (deviceModel.isDebug() && deviceModel.isProgramRunning()) {
+					System.out.println(io.name + " " +io.isOverridden());
 					if (io.isOverridden()) {
 						ivOverride
 								.setImageResource(R.drawable.remote_override_enabled);

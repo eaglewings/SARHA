@@ -74,31 +74,37 @@ private OnClickListener downloadClickListener = new OnClickListener() {
 	@Override
 	protected void onResume() {
 		//System.out.println("resume");
-		if (CommManager.connectedDevice != null) {
-			String id[] = CommManager.protocol.getConfigId();
-			if (id != null) {
-				if (id[0] != null && id[1] != null && id[2] != null) {
-					name = id[0];
-					createId = Integer.parseInt(id[1]);
-					changeId = Integer.parseInt(id[2]);
-					if(name.equals("0")){
-						tvConfigDeviceName.setText("No config on device \""+CommManager.connectedDevice.getName()+"\"");
-					}
-					else{
-						tvConfigDeviceName.setText(name);
-					tvConfigDeviceId.setText(
-							Utils.idString(createId, changeId));
-					tvConfigDeviceId.setVisibility(View.VISIBLE);
-					}
-					
-					
-				}
-			}
-		}
-		else{
+		if (CommManager.connectedDevice == null) {
 			DevicesDialogFragment.newInstance(okThread,null).show(
 					getSupportFragmentManager(), "dialog");
 		}
 		super.onResume();
+	}
+	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+		if(hasFocus){
+			if (CommManager.connectedDevice != null) {
+				String id[] = CommManager.protocol.getConfigId();
+				if (id != null) {
+					if (id[0] != null && id[1] != null && id[2] != null) {
+						name = id[0];
+						createId = Integer.parseInt(id[1]);
+						changeId = Integer.parseInt(id[2]);
+						if(name.equals("0")){
+							tvConfigDeviceName.setText("No config on device \""+CommManager.connectedDevice.getName()+"\"");
+						}
+						else{
+							tvConfigDeviceName.setText(name);
+						tvConfigDeviceId.setText(
+								Utils.idString(createId, changeId));
+						tvConfigDeviceId.setVisibility(View.VISIBLE);
+						}
+						
+						
+					}
+				}
+			}
+		}
+		super.onWindowFocusChanged(hasFocus);
 	}
 }

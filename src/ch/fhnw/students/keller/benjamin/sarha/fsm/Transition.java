@@ -63,6 +63,7 @@ public class Transition implements Serializable, LuaParseable {
 				lua += "\t\t\t"+action.parse();
 			}
 		}
+		lua +="\t\t\tt.dbg('Transition from \""+fromState.getStateName()+"\" to \""+toState.getStateName()+"\"')\n";
 		lua += "\t\t\treturn " + toState.stateMachine.getLuaFunctionForState(toState)+ "\n";
 		return lua;
 	}

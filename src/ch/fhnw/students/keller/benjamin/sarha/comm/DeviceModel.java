@@ -9,6 +9,7 @@ import ch.fhnw.students.keller.benjamin.sarha.config.IOs;
 public class DeviceModel extends Observable {
 	private Config config;
 	private boolean programRunning = false, debugActive = false;
+
 	public DeviceModel(Config config) {
 		this.config = config;
 	}
@@ -19,14 +20,19 @@ public class DeviceModel extends Observable {
 
 	public void programRun() {
 		programRunning = true;
-		CommManager.protocol.programRun();
+		if (CommManager.protocol != null) {
+			CommManager.protocol.programRun();
+		}
+		
 		setChanged();
 		notifyObservers();
 	}
 
 	public void programStop() {
 		programRunning = false;
-		CommManager.protocol.programStop();
+		if (CommManager.protocol != null) {
+			CommManager.protocol.programStop();
+		}
 		setChanged();
 		notifyObservers();
 	}
@@ -37,12 +43,21 @@ public class DeviceModel extends Observable {
 
 	public void debugActive() {
 		debugActive = true;
+		if (CommManager.protocol != null) {
+			CommManager.protocol.setDebug(true);
+		}
+		for (AddressIdentifier address : config.getUpdateAddresses()) {
+			config.getIO(address).real();
+		}
 		setChanged();
 		notifyObservers();
 	}
 
 	public void debugInactive() {
 		debugActive = false;
+		if (CommManager.protocol != null) {
+			CommManager.protocol.setDebug(false);
+		}
 		setChanged();
 		notifyObservers();
 	}
@@ -55,10 +70,11 @@ public class DeviceModel extends Observable {
 		io.setValue(value);
 		io.notifyObservers();
 	}
-	public void setIOvalue(AddressIdentifier ai, int value){
-		IOs io=config.getIO(ai);
-		if( io!=null){
-			setIOvalue(io,value);
+
+	public void setIOvalue(AddressIdentifier ai, int value) {
+		IOs io = config.getIO(ai);
+		if (io != null) {
+			setIOvalue(io, value);
 		}
 		io.notifyObservers();
 	}
