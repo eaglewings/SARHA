@@ -2,10 +2,6 @@ package ch.fhnw.students.keller.benjamin.sarha.config.ui;
 
 import java.util.concurrent.ArrayBlockingQueue;
 
-import ch.fhnw.students.keller.benjamin.sarha.AppData;
-import ch.fhnw.students.keller.benjamin.sarha.R;
-import ch.fhnw.students.keller.benjamin.sarha.comm.CommManager;
-import ch.fhnw.students.keller.benjamin.sarha.config.Config;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
@@ -13,21 +9,21 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.MultiAutoCompleteTextView.CommaTokenizer;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.TwoLineListItem;
+import ch.fhnw.students.keller.benjamin.sarha.AppData;
+import ch.fhnw.students.keller.benjamin.sarha.R;
+import ch.fhnw.students.keller.benjamin.sarha.comm.CommManager;
+import ch.fhnw.students.keller.benjamin.sarha.config.Config;
 
 public class UploadConfigDialogFragment extends DialogFragment {
 
 	private ProgressBar pbUpload;
 	private Button btOk, btCancel;
-	private TwoLineListItem liConfig;
 	private TextView tvInfo, tvProgress;
 	private Config config;
 	private int pbMax = 0, pbProgress = 0;
-	private ArrayBlockingQueue<Integer> queue = new ArrayBlockingQueue<Integer>(
-			1);
+	private ArrayBlockingQueue<Integer> queue = new ArrayBlockingQueue<Integer>(1);
 
 	public static UploadConfigDialogFragment newInstance(Config config) {
 		UploadConfigDialogFragment f = new UploadConfigDialogFragment();
@@ -35,13 +31,11 @@ public class UploadConfigDialogFragment extends DialogFragment {
 		return f;
 	}
 
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View v = inflater.inflate(R.layout.config_dialog_upload, container);
 		pbUpload = (ProgressBar) v.findViewById(R.id.pbUpload);
 		btOk = (Button) v.findViewById(R.id.btOk);
 		btCancel = (Button) v.findViewById(R.id.btCancel);
-		liConfig = (TwoLineListItem) v.findViewById(R.id.liConfig);
 		tvInfo = (TextView) v.findViewById(R.id.tvInfo);
 		tvProgress = (TextView) v.findViewById(R.id.tvProgress);
 		pbUpload.setMax(0);
@@ -64,8 +58,7 @@ public class UploadConfigDialogFragment extends DialogFragment {
 					private boolean pbMaxSet;
 
 					public void run() {
-						System.out.println("uiUpdateThread start");
-						AppData.data.handler.post(new Runnable() {
+						AppData.handler.post(new Runnable() {
 							@Override
 							public void run() {
 								tvProgress.setVisibility(View.VISIBLE);
@@ -74,8 +67,8 @@ public class UploadConfigDialogFragment extends DialogFragment {
 							}
 						});
 						while (uploadThread.isAlive()) {
-							
-							AppData.data.handler.post(new Runnable() {
+
+							AppData.handler.post(new Runnable() {
 
 								@Override
 								public void run() {
@@ -90,11 +83,9 @@ public class UploadConfigDialogFragment extends DialogFragment {
 										} else {
 											System.out.println("uiUpdateThread set Progress " + val);
 											pbUpload.setProgress(val);
-											pbProgress=val;
+											pbProgress = val;
 										}
-										tvProgress.setText(pbProgress
-												+ " / " + pbMax
-												+ " Bytes done");
+										tvProgress.setText(pbProgress + " / " + pbMax + " Bytes done");
 									}
 								}
 							});
@@ -103,17 +94,15 @@ public class UploadConfigDialogFragment extends DialogFragment {
 							getDialog().dismiss();
 							getActivity().finish();
 						} else {
-							AppData.data.handler.post(new Runnable() {
+							AppData.handler.post(new Runnable() {
 
 								@Override
 								public void run() {
-
 									tvInfo.setText("Upload failed");
 								}
 							});
 
 						}
-						System.out.println("uiUpdateThread stop");
 					}
 				};
 				uploadThread.start();
@@ -122,11 +111,11 @@ public class UploadConfigDialogFragment extends DialogFragment {
 			}
 		});
 		btCancel.setOnClickListener(new OnClickListener() {
-			
+
 			@Override
 			public void onClick(View v) {
 				getDialog().dismiss();
-				
+
 			}
 		});
 		getDialog().setTitle("Upload Config");

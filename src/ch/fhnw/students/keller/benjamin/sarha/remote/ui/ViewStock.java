@@ -113,7 +113,8 @@ public class ViewStock {
 			tag.seekBar = (SeekBar) view.findViewById(R.id.seekBar1);
 			tag.seekBar.setOnSeekBarChangeListener(tag.seekBarListener);
 			tag.seekBar.setThumb(tag.thumbao);
-			tag.seekBar.setThumbOffset(0);
+			tag.seekBar.setThumbOffset(20);
+			tag.seekBar.setMax(99);
 			break;
 		case AI:
 			view = inflater.inflate(R.layout.remote_listviewitem_analog_in,
@@ -122,7 +123,7 @@ public class ViewStock {
 			tag.seekBar = (SeekBar) view.findViewById(R.id.seekBar1);
 			tag.seekBar.setOnSeekBarChangeListener(tag.seekBarListener);
 			tag.seekBar.setThumb(tag.thumbai);
-			tag.seekBar.setThumbOffset(0);
+			tag.seekBar.setThumbOffset(20);
 			tag.seekBar.setMax(4095);
 
 			break;
@@ -226,16 +227,10 @@ public class ViewStock {
 		public OnSeekBarChangeListener seekBarListener = new OnSeekBarChangeListener() {
 
 			@Override
-			public void onStopTrackingTouch(SeekBar seekBar) {
-				// TODO Auto-generated method stub
-
-			}
+			public void onStopTrackingTouch(SeekBar seekBar) {}
 
 			@Override
-			public void onStartTrackingTouch(SeekBar seekBar) {
-				// TODO Auto-generated method stub
-
-			}
+			public void onStartTrackingTouch(SeekBar seekBar) {}
 
 			@Override
 			public void onProgressChanged(SeekBar seekBar, int progress,

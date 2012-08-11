@@ -30,16 +30,15 @@
 
             <SeekBar
                 android:id="@+id/seekBar1"
-                android:progressDrawable="@drawable/remote_seekbar_debug"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="5dp"
-                android:layout_weight="1" 
+                android:layout_marginRight="20dp"
+                android:layout_weight="1"
                 android:progress="25"
-                android:secondaryProgress="50"/>
-
+                android:progressDrawable="@drawable/remote_seekbar_debug"
+                android:secondaryProgress="50" />
         </LinearLayout>
-
     </LinearLayout>
 
     <ImageView
