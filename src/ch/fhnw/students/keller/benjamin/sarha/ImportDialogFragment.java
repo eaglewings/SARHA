@@ -1,7 +1,6 @@
-package ch.fhnw.students.keller.benjamin.sarha.config.ui;
+package ch.fhnw.students.keller.benjamin.sarha;
 
 import java.io.File;
-import java.util.Date;
 import java.util.concurrent.ArrayBlockingQueue;
 
 import android.os.Bundle;
@@ -11,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
@@ -20,53 +20,53 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-import ch.fhnw.students.keller.benjamin.sarha.AppData;
-import ch.fhnw.students.keller.benjamin.sarha.ConfigImporter;
-import ch.fhnw.students.keller.benjamin.sarha.ConfigImporter.CompareResult;
-import ch.fhnw.students.keller.benjamin.sarha.R;
-import ch.fhnw.students.keller.benjamin.sarha.Utils;
-import ch.fhnw.students.keller.benjamin.sarha.comm.CommManager;
-import ch.fhnw.students.keller.benjamin.sarha.config.Config;
+import ch.fhnw.students.keller.benjamin.sarha.Importer.CompareResult;
+import ch.fhnw.students.keller.benjamin.sarha.Importer.PortableType;
 
-public class ImportConfigDialogFragment extends DialogFragment {
-	private Config importedConfig, matchedConfig;
+public class ImportDialogFragment extends DialogFragment {
+	private PortableType type;
+	private Portable imported, matched;
 	private Button btOk, btCancel;
-	private Spinner spConfig;
-	private TextView tvConfigName, tvConfigId, tvTypeofConflict,
-			tvConflictingName, tvConflictingId, tvNewName, tvProgress;
+	private Spinner spPortable;
+	private TextView tvName, tvId, tvTypeofConflict,
+			tvConflictingName, tvConflictingId, tvNewName, tvProgress, tvToBeImported;
 	private EditText etNewName;
 	private ProgressBar pbDownload;
-	private ConfigImporter.CompareResult resultOfSelected;
+	private CompareResult resultOfSelected;
 	private String name;
 	private int createId;
 	private int changeId;
 	private int pbMax = 0, pbProgress = 0;
 	private boolean success;
 	private ArrayBlockingQueue<Integer> queue = new ArrayBlockingQueue<Integer>(1);
-
-	public static ImportConfigDialogFragment newInstance(String name,
+	
+	public static ImportDialogFragment newInstance(PortableType type,String name,
 			int createId, int changeId) {
-		ImportConfigDialogFragment f = new ImportConfigDialogFragment();
+		ImportDialogFragment f = new ImportDialogFragment();
 		f.name = name;
 		f.createId = createId;
 		f.changeId = changeId;
+		f.type =type;
 		return f;
 	}
 
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		View v = inflater.inflate(R.layout.config_dialog_import, container);
+		View v = inflater.inflate(R.layout.dialog_import, container, true);
+		v.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 		etNewName = (EditText) v.findViewById(R.id.etNewName);
 		btOk = (Button) v.findViewById(R.id.btOk);
 		btCancel = (Button) v.findViewById(R.id.btCancel);
-		spConfig = (Spinner) v.findViewById(R.id.spConfig);
-		tvConfigName = (TextView) v.findViewById(R.id.tvConfigName);
-		tvConfigId = (TextView) v.findViewById(R.id.tvConfigId);
+		spPortable = (Spinner) v.findViewById(R.id.spPortable);
+		tvName = (TextView) v.findViewById(R.id.tvName);
+		tvId = (TextView) v.findViewById(R.id.tvId);
 		tvTypeofConflict = (TextView) v.findViewById(R.id.tvTypeofConflict);
 		tvConflictingName = (TextView) v.findViewById(R.id.tvConflictingName);
 		tvConflictingId = (TextView) v.findViewById(R.id.tvConflictingId);
 		tvNewName = (TextView) v.findViewById(R.id.tvNewName);
 		tvProgress = (TextView) v.findViewById(R.id.tvProgress);
+		tvToBeImported = (TextView) v.findViewById(R.id.tvToBeImported);
+		tvToBeImported.setText(type.labelUC+"to be imported");
 		pbDownload = (ProgressBar) v.findViewById(R.id.pbDownload);
 		btCancel.setOnClickListener(new OnClickListener() {
 
@@ -82,27 +82,27 @@ public class ImportConfigDialogFragment extends DialogFragment {
 				
 				switch (resultOfSelected) {
 				case MATCH:
-					ImportConfigDialogFragment.this.dismiss();
+					ImportDialogFragment.this.dismiss();
 					break;
 				case NO_MATCH:
-					AppData.data.configs.add(importedConfig);
-					ImportConfigDialogFragment.this.dismiss();
+					type.list.add(imported);
+					ImportDialogFragment.this.dismiss();
 					break;
 				case OVERWRITE:
-					int index = AppData.data.configs.indexOf(matchedConfig);
-					AppData.data.configs.remove(matchedConfig);
-					AppData.data.configs.add(index, importedConfig);
-					ImportConfigDialogFragment.this.dismiss();
+					int index = type.list.indexOf(matched);
+					type.list.remove(matched);
+					type.list.add(index, imported);
+					ImportDialogFragment.this.dismiss();
 					break;
 				case RENAME:
 					String newName = etNewName.getText().toString().trim();
-					if (Utils.checkConfigName(newName)) {
-						importedConfig.name = newName;
-						AppData.data.configs.add(importedConfig);
-						ImportConfigDialogFragment.this.dismiss();
+					if (Utils.checkPortableName(type, newName)) {
+						imported.setName(newName);
+						type.list.add(imported);
+						ImportDialogFragment.this.dismiss();
 					} else {
 						Toast.makeText(
-								ImportConfigDialogFragment.this.getActivity(),
+								ImportDialogFragment.this.getActivity(),
 								"New name invalid or in use", Toast.LENGTH_LONG)
 								.show();
 					}
@@ -113,14 +113,14 @@ public class ImportConfigDialogFragment extends DialogFragment {
 			}
 		});
 
-		if (name == null) { // Importing Config from SD card
-			getDialog().setTitle("Import config from SD");
-			spConfig.setVisibility(View.VISIBLE);
+		if (name == null) { // Importing from SD card
+			getDialog().setTitle("Import " +type.labelLC+ "from SD");
+			spPortable.setVisibility(View.VISIBLE);
 			File[] files;
 			String[] fileNames;
 			final File root = Environment.getExternalStorageDirectory();
 			File folder = new File(root.getAbsolutePath() + "/"
-					+ AppData.APPLICATION_FOLDER + "/" + AppData.CONFIGFOLDER
+					+ AppData.APPLICATION_FOLDER + "/" + type.folder
 					+ "/");
 			folder.mkdirs();
 			files = folder.listFiles();
@@ -134,34 +134,34 @@ public class ImportConfigDialogFragment extends DialogFragment {
 					this.getActivity(), android.R.layout.simple_spinner_item,
 					android.R.id.text1, fileNames);
 			adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-			spConfig.setAdapter(adapter);
-			spConfig.setOnItemSelectedListener(new OnItemSelectedListener() {
+			spPortable.setAdapter(adapter);
+			spPortable.setOnItemSelectedListener(new OnItemSelectedListener() {
 
 				@Override
 				public void onItemSelected(AdapterView<?> parent, View view,
 						int position, long id) {
 					File file = null;
-					String fileName = (String) spConfig
+					String fileName = (String) spPortable
 							.getItemAtPosition(position);
 					if (fileName != null && !fileName.equals("")) {
 						file = new File(root.getAbsolutePath() + "/"
 								+ AppData.APPLICATION_FOLDER + "/"
-								+ AppData.CONFIGFOLDER + "/" + fileName);
+								+ type.folder + "/" + fileName);//TODO
 
-						importedConfig = ConfigImporter.getFromFile(
-								ImportConfigDialogFragment.this.getActivity(),
+						imported = Importer.getFromFile(
+								ImportDialogFragment.this.getActivity(),
 								file);
-						if (importedConfig != null) {
-							name = importedConfig.name;
-							createId = importedConfig.createId;
-							changeId = importedConfig.getChangeId();
+						if (imported != null) {
+							name = imported.getName();
+							createId = imported.getCreateId();
+							changeId = imported.getChangeId();
 							setViews();
 						} else {
 							tvTypeofConflict
-									.setText("Selected file is not a Config");
+									.setText("Selected file is not a "+type.labelLC);
 							tvTypeofConflict.setVisibility(View.VISIBLE);
-							tvConfigName.setVisibility(View.GONE);
-							tvConfigId.setVisibility(View.GONE);
+							tvName.setVisibility(View.GONE);
+							tvId.setVisibility(View.GONE);
 							tvConflictingName.setVisibility(View.GONE);
 							tvConflictingId.setVisibility(View.GONE);
 							etNewName.setVisibility(View.GONE);
@@ -176,18 +176,19 @@ public class ImportConfigDialogFragment extends DialogFragment {
 			});
 
 		} else {
-			getDialog().setTitle("Download config form control unit");
-			spConfig.setVisibility(View.GONE);
+			getDialog().setTitle("Download "+type.labelLC+" form control unit");
+			spPortable.setVisibility(View.GONE);
 			setViews();
-			if(resultOfSelected!=ConfigImporter.CompareResult.NONE && resultOfSelected!=ConfigImporter.CompareResult.MATCH){
+			if(resultOfSelected!=CompareResult.NONE && resultOfSelected!=CompareResult.MATCH){
 			btOk.setEnabled(false);
 			tvProgress.setVisibility(View.VISIBLE);
 			pbDownload.setVisibility(View.VISIBLE);
 			final Thread downloadThread = new Thread() {
 				public void run() {
 					System.out.println("uploadThread start");
-					importedConfig = CommManager.protocol.getConfig(queue);
-					if(importedConfig!=null){
+					imported = Importer.getFromDevice(type, queue);//TODO
+					if(imported!=null){
+						if(imported.getPortableType()==type)
 						success=true;
 					}
 					System.out.println("uploadThread stop");
@@ -198,7 +199,7 @@ public class ImportConfigDialogFragment extends DialogFragment {
 
 				public void run() {
 					System.out.println("uiUpdateThread start");
-					AppData.data.handler.post(new Runnable() {
+					AppData.handler.post(new Runnable() {
 						@Override
 						public void run() {
 							tvProgress.setVisibility(View.VISIBLE);
@@ -208,7 +209,7 @@ public class ImportConfigDialogFragment extends DialogFragment {
 					});
 					while (downloadThread.isAlive()) {
 						
-						AppData.data.handler.post(new Runnable() {
+						AppData.handler.post(new Runnable() {
 
 							@Override
 							public void run() {
@@ -233,7 +234,7 @@ public class ImportConfigDialogFragment extends DialogFragment {
 						});
 					}
 					if (success) {
-						AppData.data.handler.post(new Runnable() {
+						AppData.handler.post(new Runnable() {
 
 							@Override
 							public void run() {
@@ -242,7 +243,7 @@ public class ImportConfigDialogFragment extends DialogFragment {
 							}
 						});
 					} else {
-						AppData.data.handler.post(new Runnable() {
+						AppData.handler.post(new Runnable() {
 
 							@Override
 							public void run() {
@@ -264,28 +265,19 @@ public class ImportConfigDialogFragment extends DialogFragment {
 	}
 
 	private void setViews() {
-		tvConfigName.setText(name);
-		tvConfigId.setText("created: "
-				+ (new Date((long) createId * 1000)).toLocaleString()
-				+ " changed: "
-				+ (new Date((long) changeId * 1000)).toLocaleString());
+		tvName.setText(name);
+		tvId.setText(Utils.idString(createId, changeId));
 
-		matchedConfig = ConfigImporter.getMatchedConfig(name, createId,
-				changeId);
-		resultOfSelected = ConfigImporter
-				.getMatchType(name, createId, changeId);
+		matched = Importer.getMatchedPortable(type, name, createId, changeId);
+		resultOfSelected = Importer
+				.getMatchType(type, name, createId, changeId);
 		if (resultOfSelected != CompareResult.NONE
 				&& resultOfSelected != CompareResult.NO_MATCH) {
-			tvConflictingName.setText(matchedConfig.name);
-			tvConflictingId.setText("created: "
-					+ (new Date((long) matchedConfig.createId * 1000))
-							.toLocaleString()
-					+ " changed: "
-					+ (new Date((long) matchedConfig.getChangeId() * 1000))
-							.toLocaleString());
+			tvConflictingName.setText(matched.getName());
+			tvConflictingId.setText(Utils.idString(createId, changeId));
 		}
-		tvConfigName.setVisibility(View.VISIBLE);
-		tvConfigId.setVisibility(View.VISIBLE);
+		tvName.setVisibility(View.VISIBLE);
+		tvId.setVisibility(View.VISIBLE);
 		tvTypeofConflict.setVisibility(View.VISIBLE);
 		tvConflictingName.setVisibility(View.VISIBLE);
 		tvConflictingId.setVisibility(View.VISIBLE);
@@ -295,7 +287,7 @@ public class ImportConfigDialogFragment extends DialogFragment {
 		pbDownload.setVisibility(View.GONE);
 		switch (resultOfSelected) {
 		case MATCH:
-			tvTypeofConflict.setText("Config already exists");
+			tvTypeofConflict.setText(type.labelUC+" already exists");
 			
 			break;
 		case NO_MATCH:
@@ -305,12 +297,12 @@ public class ImportConfigDialogFragment extends DialogFragment {
 			
 			break;
 		case OVERWRITE:
-			if (matchedConfig.getChangeId() > changeId) {
+			if (matched.getChangeId() > changeId) {
 				tvTypeofConflict
-						.setText("Config exists in newer version. Overwrite?");
+						.setText(type.labelUC +" exists in newer version. Overwrite?");
 			} else {
 				tvTypeofConflict
-						.setText("Config exists in older version. Overwrite?");
+						.setText(type.labelUC +" exists in older version. Overwrite?");
 			}
 			break;
 		case RENAME:
@@ -319,7 +311,7 @@ public class ImportConfigDialogFragment extends DialogFragment {
 			tvNewName.setVisibility(View.VISIBLE);
 			break;
 		case NONE:
-			tvTypeofConflict.setText("No config on Device");
+			tvTypeofConflict.setText("No "+type.labelLC+" on Device");
 			tvConflictingName.setVisibility(View.GONE);
 			tvConflictingId.setVisibility(View.GONE);
 		}

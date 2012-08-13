@@ -5,15 +5,18 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
 
+import ch.fhnw.students.keller.benjamin.sarha.Importer.PortableType;
+import ch.fhnw.students.keller.benjamin.sarha.Portable;
+
 /**
  * Data model for configuration of input and output aliases 
  *
  */
 /**
- * @author Benjamin
+ * @author Benjamin Keller
  * 
  */
-public class Config implements Serializable {
+public class Config implements Serializable, Portable {
 
 	/**
 	 * 
@@ -168,17 +171,33 @@ public class Config implements Serializable {
 	public String toString() {
 		return name;
 	}
-
+	@Override
 	public int getCreateId() {
 		return createId;
 	}
-
+	
 	public void setChangeId() {
 		changeId = (int) (System.currentTimeMillis() / 1000);
 	}
-
+	@Override
 	public int getChangeId() {
 		return changeId;
+	}
+
+	@Override
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public void setName(String name) {
+		this.name=name;
+		
+	}
+
+	@Override
+	public PortableType getPortableType() {
+		return PortableType.CONFIG;
 	}
 
 }

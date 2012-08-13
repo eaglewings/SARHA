@@ -29,7 +29,7 @@ public class ConfigActivity extends FragmentActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		int position =getIntent().getExtras().getInt("ConfigIndex");
-		config=AppData.data.configs.get(position);
+		config=(Config) AppData.data.configs.get(position);
 		adapter = new ConfigAdapter(this, config);
 		
 		setContentView(R.layout.config_activity_config);

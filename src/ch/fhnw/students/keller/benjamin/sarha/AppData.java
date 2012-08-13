@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import android.content.Context;
 import android.os.Handler;
 import android.widget.TextView;
+import ch.fhnw.students.keller.benjamin.sarha.Importer.PortableType;
 import ch.fhnw.students.keller.benjamin.sarha.comm.Device;
 import ch.fhnw.students.keller.benjamin.sarha.comm.DeviceModel;
 import ch.fhnw.students.keller.benjamin.sarha.config.Config;
@@ -45,10 +46,12 @@ public class AppData implements Serializable{
 	public static StateMachine currentWorkingStateMachine;
 	public static State currentWorkingState;
 	public static Transition currentWorkingTransition;
+	
+	public static PortableType uploadDownloadPortableType;
 
-	public ArrayList<StateMachine> stateMachines = new ArrayList<StateMachine>();
+	public ArrayList<Portable> stateMachines = new ArrayList<Portable>();
 	public ArrayList<Device> devices = new ArrayList<Device>();
-	public ArrayList<Config> configs = new ArrayList<Config>();
+	public ArrayList<Portable> configs = new ArrayList<Portable>();
 
 	public static Context context;
 	public static Handler handler;

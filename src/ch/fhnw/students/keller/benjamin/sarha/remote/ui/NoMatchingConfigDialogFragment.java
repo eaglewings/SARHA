@@ -1,29 +1,18 @@
 package ch.fhnw.students.keller.benjamin.sarha.remote.ui;
 
-import java.util.ArrayList;
-import java.util.Observable;
-import java.util.Observer;
-
-import ch.fhnw.students.keller.benjamin.sarha.AppData;
-import ch.fhnw.students.keller.benjamin.sarha.R;
-import ch.fhnw.students.keller.benjamin.sarha.Utils;
-import ch.fhnw.students.keller.benjamin.sarha.comm.CommManager;
-import ch.fhnw.students.keller.benjamin.sarha.comm.Device;
-import ch.fhnw.students.keller.benjamin.sarha.config.ui.UploadDownloadConfigActivity;
-import ch.fhnw.students.keller.benjamin.sarha.settings.ui.DeviceAdapter;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
-import android.widget.AdapterView;
+import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ListView;
-import android.widget.ProgressBar;
-import android.widget.AdapterView.OnItemClickListener;
+import ch.fhnw.students.keller.benjamin.sarha.AppData;
+import ch.fhnw.students.keller.benjamin.sarha.Importer.PortableType;
+import ch.fhnw.students.keller.benjamin.sarha.R;
+import ch.fhnw.students.keller.benjamin.sarha.UploadDownloadActivity;
 
 public class NoMatchingConfigDialogFragment extends DialogFragment {
 	private Button btOk, btCancel;
@@ -47,8 +36,9 @@ public class NoMatchingConfigDialogFragment extends DialogFragment {
 			
 			@Override
 			public void onClick(View v) {
+				AppData.uploadDownloadPortableType=PortableType.CONFIG;
 				Intent i = new Intent(getActivity(),
-						UploadDownloadConfigActivity.class);
+						UploadDownloadActivity.class);
 				startActivity(i);
 				dismiss();
 				

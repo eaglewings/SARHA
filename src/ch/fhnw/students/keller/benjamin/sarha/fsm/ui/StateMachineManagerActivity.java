@@ -15,14 +15,16 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
+import android.widget.Toast;
 import ch.fhnw.students.keller.benjamin.sarha.AppData;
+import ch.fhnw.students.keller.benjamin.sarha.ExportDialogFragment;
+import ch.fhnw.students.keller.benjamin.sarha.ImportDialogFragment;
+import ch.fhnw.students.keller.benjamin.sarha.UploadDownloadActivity;
+import ch.fhnw.students.keller.benjamin.sarha.Importer.PortableType;
 import ch.fhnw.students.keller.benjamin.sarha.R;
-import ch.fhnw.students.keller.benjamin.sarha.config.Config;
-import ch.fhnw.students.keller.benjamin.sarha.config.ui.ExportConfigDialogFragment;
 import ch.fhnw.students.keller.benjamin.sarha.fsm.StateMachine;
 
 
@@ -56,7 +58,7 @@ public class StateMachineManagerActivity extends FragmentActivity {
 			@Override
 			public boolean onItemLongClick(AdapterView<?> parent, View view,
 					int position, long id) {
-				NewStateMachineDialogFragment.newInstance((StateMachine) adapter.getItem(position)).show(getSupportFragmentManager(), "dialog");
+				StateMachineDialogFragment.newInstance((StateMachine) adapter.getItem(position)).show(getSupportFragmentManager(), "dialog");
 				
 				return false;
 			}
@@ -85,14 +87,18 @@ public class StateMachineManagerActivity extends FragmentActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()){
 		case R.id.menuitemnewstatemachine:
-			NewStateMachineDialogFragment.newInstance(null).show(getSupportFragmentManager(), "dialog");
-			break;
-		case R.id.menuitemcopystatemachine:
+			StateMachineDialogFragment.newInstance(null).show(getSupportFragmentManager(), "dialog");
 			break;
 		case R.id.menuitemimportstatemachine:
+			ImportDialogFragment.newInstance(PortableType.STATEMACHINE, null,0,0).show(getSupportFragmentManager(), "dialog");
 			break;
 		case R.id.menuitemexportstatemachine:
-			ExportStateMachineDialogFragment.newInstance().show(getSupportFragmentManager(), "dialog");
+			ExportDialogFragment.newInstance(PortableType.STATEMACHINE).show(getSupportFragmentManager(), "dialog");
+			break;
+		case  R.id.menuitemdownloadconfig:
+			AppData.uploadDownloadPortableType=PortableType.STATEMACHINE;
+			Intent intent = new Intent(this,UploadDownloadActivity.class);
+			startActivity(intent);
 			break;
 		}
 		return super.onOptionsItemSelected(item);
@@ -102,40 +108,5 @@ public class StateMachineManagerActivity extends FragmentActivity {
 		AppData.saveAppData();
 		super.onPause();
 	}
-	public void doExportStateMachinePositiveClick(String string, Object selectedItem) {
-		StateMachine stateMachine = (StateMachine) selectedItem;
-		    File root = Environment.getExternalStorageDirectory();
-		    File folder = new File(root.getAbsolutePath()+"/"+AppData.APPLICATION_FOLDER+"/"+AppData.STATEMACHINEFOLDER +"/");
-		    folder.mkdirs();
-		    File exportfile = new File(folder, string);
-		    ObjectOutputStream outputStream = null;
-		    if (root.canWrite()){
-		    	try {
-					outputStream = new ObjectOutputStream(new FileOutputStream(exportfile));
-					outputStream.writeObject(stateMachine);
-		        } catch (FileNotFoundException e) {
-		        	e.printStackTrace();
-		        	Toast.makeText(this, "Sorry, FileNotFoundException occured.", Toast.LENGTH_LONG).show();
-				} catch (IOException e) {
-					e.printStackTrace();
-					 Toast.makeText(this, "Sorry, an error occured.", Toast.LENGTH_LONG).show();
-				}
-            
-		        
-		    }
-		    else{
-		    	Toast.makeText(this, "Sorry, location "+root+" is write protected.", Toast.LENGTH_LONG).show();
-		    }
-            //Close the ObjectOutputStream
-            try {
-                if (outputStream != null) {
-                    outputStream.flush();
-                    outputStream.close();
-                    Toast.makeText(this, "Statemachine saved as: " + exportfile.getAbsolutePath(), Toast.LENGTH_LONG).show();
-                }
-            } catch (IOException ex) {
-                ex.printStackTrace();
-                Toast.makeText(this, "Sorry, an error occured.", Toast.LENGTH_LONG).show();
-            }
-        }
+	
 }

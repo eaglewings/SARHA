@@ -28,7 +28,39 @@
                 <LinearLayout
                     android:id="@+id/tabDevices"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" >
+                    android:layout_height="match_parent"
+                    android:orientation="vertical" >
+
+                    <LinearLayout
+                        android:id="@+id/tabDevices"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal" >
+
+                        <Button
+                            android:id="@+id/btDisconnect"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Disconnect" />
+
+                        <Button
+                            android:id="@+id/btRefresh"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Refresh" />
+
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent" >
+
+                            <ProgressBar
+                                android:id="@+id/pbProgress"
+                                style="?android:attr/progressBarStyleSmall"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_centerInParent="true" />
+                        </RelativeLayout>
+                    </LinearLayout>
 
                     <ListView
                         android:id="@+id/lvDevices"
@@ -36,28 +68,19 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1" >
                     </ListView>
-
                 </LinearLayout>
-				<LinearLayout
+
+                <LinearLayout
                     android:id="@+id/tabPreferences"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" >
-				
-				    <Button
-				    android:id="@+id/btDeleteAppData"
-				    android:layout_width="wrap_content"
-				    android:layout_height="wrap_content"
-				    android:text="Delete all persistent data" />
-				<Button
-				    android:id="@+id/btDisconnect"
-				    android:layout_width="wrap_content"
-				    android:layout_height="wrap_content"
-				    android:text="Disconnect" />
-				    
+
+                    <Button
+                        android:id="@+id/btDeleteAppData"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Delete all persistent data" />
                 </LinearLayout>
-
-				
-
             </FrameLayout>
         </LinearLayout>
     </TabHost>

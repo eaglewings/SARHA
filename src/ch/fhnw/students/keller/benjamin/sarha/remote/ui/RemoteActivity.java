@@ -3,9 +3,6 @@ package ch.fhnw.students.keller.benjamin.sarha.remote.ui;
 import java.util.Observable;
 import java.util.Observer;
 
-import org.w3c.dom.Text;
-
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
@@ -14,15 +11,13 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import ch.fhnw.students.keller.benjamin.sarha.AppData;
-import ch.fhnw.students.keller.benjamin.sarha.ConfigImporter;
+import ch.fhnw.students.keller.benjamin.sarha.Importer;
+import ch.fhnw.students.keller.benjamin.sarha.Importer.PortableType;
 import ch.fhnw.students.keller.benjamin.sarha.R;
-import ch.fhnw.students.keller.benjamin.sarha.Utils;
 import ch.fhnw.students.keller.benjamin.sarha.comm.CommManager;
 import ch.fhnw.students.keller.benjamin.sarha.comm.DeviceModel;
 import ch.fhnw.students.keller.benjamin.sarha.config.Config;
 import ch.fhnw.students.keller.benjamin.sarha.config.IO;
-import ch.fhnw.students.keller.benjamin.sarha.config.ui.DownloadUploadConfigDialogFragment;
-import ch.fhnw.students.keller.benjamin.sarha.config.ui.UploadDownloadConfigActivity;
 
 public class RemoteActivity extends FragmentActivity implements Observer {
 	private Config cfg;
@@ -35,14 +30,6 @@ public class RemoteActivity extends FragmentActivity implements Observer {
 	Thread offlineThread = new Thread() {
 		public void run() {
 			RemoteActivity.this.finish();
-			/*
-			offline = true;
-			device = new DeviceModel(cfg);
-			viewStock = new ViewStock(RemoteActivity.this, device, null);
-			device.addObserver(RemoteActivity.this);
-			viewStock.addViews(lla);
-			AppData.currentWorkingDeviceModel = device;
-			*/
 		};
 	};
 
@@ -105,16 +92,16 @@ public class RemoteActivity extends FragmentActivity implements Observer {
 	private boolean checkConfig() {
 		Config config;
 		if (CommManager.protocol != null) {
-			String[] id = CommManager.protocol.getConfigId();
+			String[] id = CommManager.protocol.getId(PortableType.CONFIG);
 			System.out.println("setconfig" + id[0] + " " + id[1] + " " + id[2]);
 			if (id != null) {
 				if (id[0] != null && id[1] != null && id[2] != null) {
 					String name = id[0];
 					int createId = Integer.parseInt(id[1]);
 					int changeId = Integer.parseInt(id[2]);
-					if (ConfigImporter.getMatchType(name, createId, changeId) == ConfigImporter.CompareResult.MATCH) {
+					if (Importer.getMatchType(PortableType.CONFIG, name, createId, changeId) == Importer.CompareResult.MATCH) {
 
-						config = ConfigImporter.getMatchedConfig(name,
+						config = (Config) Importer.getMatchedPortable(PortableType.CONFIG, name,
 								createId, changeId);
 
 						System.out.println("match");

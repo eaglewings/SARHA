@@ -37,6 +37,9 @@ public class Transition implements Serializable, LuaParseable {
 	public void setName(String name) {
 		this.name = name;
 	}
+	public String getName() {
+		return name;
+	}
 
 	@Override
 	public String toString() {

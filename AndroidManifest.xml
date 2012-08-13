@@ -38,9 +38,7 @@
         </activity>
         <activity android:name=".settings.ui.SettingsActivity" >
         </activity>
-        <activity android:name=".config.ui.UploadDownloadConfigActivity" >
-        </activity>
-        <activity android:name=".fsm.ui.UploadDownloadStateMachineActivity" >
+        <activity android:name=".UploadDownloadActivity" >
         </activity>
     </application>
 

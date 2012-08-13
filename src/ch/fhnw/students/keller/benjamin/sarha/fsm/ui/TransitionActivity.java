@@ -121,7 +121,6 @@ public class TransitionActivity extends FragmentActivity {
 		return true;
 	}
 	
-	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {

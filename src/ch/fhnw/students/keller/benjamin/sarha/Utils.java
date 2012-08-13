@@ -3,6 +3,7 @@ package ch.fhnw.students.keller.benjamin.sarha;
 import java.util.ArrayList;
 import java.util.Date;
 
+import ch.fhnw.students.keller.benjamin.sarha.Importer.PortableType;
 import ch.fhnw.students.keller.benjamin.sarha.comm.Device;
 import ch.fhnw.students.keller.benjamin.sarha.config.Config;
 
@@ -10,12 +11,12 @@ public class Utils {
 
 	
 	
-	public static boolean checkConfigName(String str){
+	public static boolean checkPortableName(PortableType type, String str){
 		if(str== null || str.equals("") || str.equals("0")){
 			return false;
 		}
-		for (Config conf : AppData.data.configs) {
-			if(conf.name.equals(str)){
+		for (Portable portable : type.list) {
+			if(portable.getName().equals(str)){
 				return false;
 			}
 		}

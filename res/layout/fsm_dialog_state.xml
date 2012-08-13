@@ -5,7 +5,7 @@
     android:orientation="vertical" >
 
     <ImageView
-            android:layout_width="300dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:src="@android:drawable/divider_horizontal_dim_dark" />
     
@@ -24,11 +24,13 @@
 
         <requestFocus />
     </EditText>
-      <CheckBox
+
+    <CheckBox
         android:id="@+id/cbDelete"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Delete" />
+    
     <LinearLayout
         android:id="@+id/buttonbar"
         style="@android:style/ButtonBar"

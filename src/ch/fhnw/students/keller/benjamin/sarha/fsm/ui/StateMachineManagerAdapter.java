@@ -9,13 +9,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+import ch.fhnw.students.keller.benjamin.sarha.Portable;
+import ch.fhnw.students.keller.benjamin.sarha.Utils;
 import ch.fhnw.students.keller.benjamin.sarha.fsm.StateMachine;
 
 public class StateMachineManagerAdapter extends BaseAdapter{
-	private ArrayList<StateMachine> stateMachines;
+	private ArrayList<? extends Portable> stateMachines;
 	private LayoutInflater inflater;
 	
-	public StateMachineManagerAdapter(Context context, ArrayList<StateMachine> stateMachines){
+	public StateMachineManagerAdapter(Context context, ArrayList<? extends Portable> stateMachines){
 		this.stateMachines=stateMachines;
 		inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
@@ -44,7 +46,7 @@ public class StateMachineManagerAdapter extends BaseAdapter{
 		StateMachine stateMachine = (StateMachine) getItem(position);
 		
 		tvMedium.setText(stateMachine.getName());
-		tvSmall.setText("created: "+(new Date((long)stateMachine.createId*1000)).toLocaleString()+"changed: "+(new Date((long)stateMachine.getChangeId()*1000)).toLocaleString());
+		tvSmall.setText(Utils.idString(stateMachine.createId, stateMachine.getChangeId()));
 		
 		return v;
 	}

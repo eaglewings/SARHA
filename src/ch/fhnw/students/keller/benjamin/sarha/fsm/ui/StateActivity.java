@@ -1,11 +1,8 @@
 package ch.fhnw.students.keller.benjamin.sarha.fsm.ui;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
+import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -24,13 +21,10 @@ import ch.fhnw.students.keller.benjamin.sarha.fsm.State;
 import ch.fhnw.students.keller.benjamin.sarha.fsm.StateMachine;
 import ch.fhnw.students.keller.benjamin.sarha.fsm.Transition;
 
-public class StateActivity extends Activity{
+public class StateActivity extends FragmentActivity {
 	private StateAdapter stateAdapter;
 	private State state;
 	private StateMachine stateMachine;
-	private AlertDialog alertDia;
-	private Handler myHandler = new Handler();
-	
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -41,14 +35,14 @@ public class StateActivity extends Activity{
 
 		ListView listViewTransitions = (ListView) findViewById(R.id.listViewTransitions);
 		CheckBox cbInitial = (CheckBox) findViewById(R.id.cbInitial);
-		if(state.equals(stateMachine.getInitialState())){
+		if (state.equals(stateMachine.getInitialState())) {
 			cbInitial.setChecked(true);
 		}
 		cbInitial.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-			
+
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				if(isChecked){
+				if (isChecked) {
 					stateMachine.setInitialState(state);
 					stateMachine.setChangeId();
 				}
@@ -57,8 +51,6 @@ public class StateActivity extends Activity{
 		TextView txtView = (TextView) findViewById(R.id.textView2);
 		txtView.setText(state.getStateName());
 
-		
-
 		stateAdapter = new StateAdapter(this, state);
 
 		listViewTransitions.setAdapter(stateAdapter);
@@ -66,62 +58,32 @@ public class StateActivity extends Activity{
 		listViewTransitions.setOnItemClickListener(new OnItemClickListener() {
 
 			@Override
-			public void onItemClick(AdapterView<?> parent, View view,
-					int position, long id) {
-				Intent i = new Intent(view.getContext(),
-						TransitionActivity.class);
-				AppData.currentWorkingTransition=stateAdapter.getItem(position);
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				Intent i = new Intent(view.getContext(), TransitionActivity.class);
+				AppData.currentWorkingTransition = stateAdapter.getItem(position);
 				startActivity(i);
 
 			}
 
 		});
 
-		alertDia = new AlertDialog.Builder(this).create();
-		alertDia.setOnDismissListener(new DialogInterface.OnDismissListener() {
+		listViewTransitions.setOnItemLongClickListener(new OnItemLongClickListener() {
 
 			@Override
-			public void onDismiss(DialogInterface dialog) {
-				myHandler.post(new Runnable() {
-					@Override
-					public void run() {
-						stateAdapter.notifyDataSetChanged();
-					}
-				});
-
+			public boolean onItemLongClick(AdapterView<?> adapter, View view, int pos, long id) {
+				TransitionDialogFragment.newInstance(stateAdapter.getItem(pos)).show(getSupportFragmentManager(), "dialog");
+				return true;
 			}
 		});
-		alertDia.setCancelable(true);
-		// Delete Dialog on longclick
-		listViewTransitions
-				.setOnItemLongClickListener(new OnItemLongClickListener() {
 
-					@Override
-					public boolean onItemLongClick(AdapterView<?> adapter,
-							View view, int pos, long id) {
-						final int finalpos = pos;
-						alertDia.setTitle("Delete State \"" + state.get(pos)
-								+ "\"?");
-						alertDia.setButton(DialogInterface.BUTTON_POSITIVE,
-								"Delete",
-								new DialogInterface.OnClickListener() {
+	}
 
-									@Override
-									public void onClick(DialogInterface dialog,
-											int which) {
-										state.remove(finalpos);
-										stateMachine.setChangeId();
-										StateActivity.this.stateAdapter
-												.notifyDataSetChanged();
-									}
-								});
-						alertDia.show();
-
-						return false;
-					}
-				});
-		
-
+	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+		if (hasFocus) {
+			stateAdapter.notifyDataSetChanged();
+		}
+		super.onWindowFocusChanged(hasFocus);
 	}
 
 	@Override
@@ -133,11 +95,13 @@ public class StateActivity extends Activity{
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		if (item.getItemId() == R.id.addTransition) {
-			state.add(new Transition(state, "NewTransition"
-					+ (state.size() + 1)));
-			stateAdapter.notifyDataSetChanged();
-			return true;
+		switch (item.getItemId()) {
+		case R.id.addTransition:
+			TransitionDialogFragment.newInstance(null).show(getSupportFragmentManager(), "dialog");
+			break;
+
+		default:
+			break;
 		}
 		return true;
 	}
@@ -145,9 +109,10 @@ public class StateActivity extends Activity{
 	@Override
 	public void onResume() {
 		super.onResume();
-		
+
 		stateAdapter.notifyDataSetChanged();
 	}
+
 	@Override
 	protected void onPause() {
 		AppData.saveAppData();

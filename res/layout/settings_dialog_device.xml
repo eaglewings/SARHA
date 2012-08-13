@@ -5,16 +5,16 @@
     android:orientation="vertical" >
 
     <ImageView
-            android:layout_width="300dp"
-            android:layout_height="wrap_content"
-            android:src="@android:drawable/divider_horizontal_dim_dark" />
-    
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@android:drawable/divider_horizontal_dim_dark" />
+
     <TextView
-            android:id="@+id/textView1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Name:"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:id="@+id/tvName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Name: "
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <EditText
         android:id="@+id/etName"
@@ -24,11 +24,19 @@
 
         <requestFocus />
     </EditText>
-      <CheckBox
+     <TextView
+        android:id="@+id/tvInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Please connect to device to change it's name"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <CheckBox
         android:id="@+id/cbDelete"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Delete" />
+
     <LinearLayout
         android:id="@+id/buttonbar"
         style="@android:style/ButtonBar"

@@ -42,23 +42,19 @@ public class ViewStock {
 	public ViewStock(Context context, DeviceModel deviceModel, Protocol protocol) {
 		this.protocol = protocol;
 		views = new ArrayList<View>();
-		System.out.println("views");
 		this.deviceModel = deviceModel;
 		config = deviceModel.getConfig();
 		this.context = context;
 		inflater = (LayoutInflater) context
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		System.out.println("inflater");
 		handler = new Handler();
 		for (IO.Type type : config.types) {
 			if (type != IO.Type.TMR) {
 				for (IOs io : config.ios.get(type)) {
-					System.out.println(type);
 					views.add(createView(io, type));
 				}
 			}
 		}
-		System.out.println("viewstock Constructor end");
 	}
 
 	public void addViews(ViewGroup parent) {
@@ -83,7 +79,6 @@ public class ViewStock {
 		View view = null;
 
 		Tag tag = new Tag();
-		System.out.println("newtag");
 		switch (type) {
 
 		case DO:
@@ -183,7 +178,6 @@ public class ViewStock {
 						protocol.setAddressReal(io);
 					}
 				} else {
-					System.out.println("clicklistener override");
 					deviceModel.setIOoverride(io);
 					if (protocol != null) {
 						if(io.type==Type.DI || io.type==Type.DO){
@@ -211,10 +205,8 @@ public class ViewStock {
 				if (deviceModel.isProgramRunning()) {
 					deviceModel.setIOoverrideValue(io,
 							(((ToggleButton) v).isChecked()) ? 1 : 0);
-					System.out.println("toggleClickListener override");
 					deviceModel.setIOoverride(io);
 
-					System.out.println("onclick" + io.getOverrideValue());
 				}
 				else{
 					((ToggleButton) v).setChecked(io.getValue() >=1);
@@ -241,7 +233,6 @@ public class ViewStock {
 					t.show();
 					if (deviceModel.isProgramRunning() && deviceModel.isDebug()) {
 						deviceModel.setIOoverrideValue(io, progress);
-						System.out.println("onProgresschanged user");
 						deviceModel.setIOoverride(io);
 
 					}
@@ -310,7 +301,6 @@ public class ViewStock {
 					break;
 
 				case AO:
-					prog = seekBar.getProgress();
 					if (deviceModel.isProgramRunning()) {
 						if (deviceModel.isDebug()) {
 
@@ -320,11 +310,10 @@ public class ViewStock {
 							thumbao.setAlpha(255);
 							seekBar.setSecondaryProgress(io.getValue());
 						} else {
+							seekBar.setProgressDrawable(seekBarNormal);
 							thumbao.setAlpha(0);
 							seekBar.setProgress(io.getValue());
 							seekBar.setOnTouchListener(seekbarDisableTouchListener);
-							seekBar.setProgressDrawable(seekBarNormal);
-
 						}
 
 					} else {
@@ -335,9 +324,6 @@ public class ViewStock {
 						thumbao.setAlpha(255);
 
 					}
-					seekBar.setProgress(seekBar.getMax());
-					// seekBar.invalidate();
-					seekBar.setProgress(prog);
 					break;
 				case AI:
 
@@ -359,7 +345,6 @@ public class ViewStock {
 					break;
 				}
 				if (deviceModel.isDebug() && deviceModel.isProgramRunning()) {
-					System.out.println(io.name + " " +io.isOverridden());
 					if (io.isOverridden()) {
 						ivOverride
 								.setImageResource(R.drawable.remote_override_enabled);

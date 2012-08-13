@@ -17,6 +17,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import ch.fhnw.students.keller.benjamin.sarha.AppData;
+import ch.fhnw.students.keller.benjamin.sarha.Importer.PortableType;
+import ch.fhnw.students.keller.benjamin.sarha.Portable;
 import ch.fhnw.students.keller.benjamin.sarha.config.AddressIdentifier;
 import ch.fhnw.students.keller.benjamin.sarha.config.Config;
 import ch.fhnw.students.keller.benjamin.sarha.config.IOs;
@@ -46,13 +48,11 @@ public class Protocol {
 	private static final String GET = "get", 
 								SET = "set", 
 								ACK = "ack",
-								CONFIG = "config", 
-								ID = "id", 
 								FILE = "file",
 								CONFIGOBJECT = "config.cfg",
 								CONFIGID = "cfg",
 								STATEMACHINEOBJECT = "statemachine.fsm",
-								STATEMACHINELUA = "progBenj.lua",
+								STATEMACHINELUA = "statemachine.lua",
 								STATEMACHINEID = "prg",
 								UPDATE = "update", 
 								OFF = "off",
@@ -61,14 +61,14 @@ public class Protocol {
 								IO = "io",
 								STORE = "store",
 								PROGRAM="program",
-								RUN="run",
-								STOP="stop",
 								REAL="real",
 								DBG="dbg",
-								DEBUG="debug";
+								DEBUG="debug",
+								DEVNAME="devName";
 								
 	// @formatter:on
-	protected static final long ACK_TIMEOUT = 2000;
+	protected static final long ACK_TIMEOUT = 3000; // Corresponding to SARHA
+													// Firmware
 	private static final int COMMAND_LENGTH = 3;
 	private static final int MAX_COMMAND_LENGTH = 500;
 	private static final int BLOCKSIZE = 64;
@@ -78,24 +78,15 @@ public class Protocol {
 	private String[] id = new String[3];
 	private BufferedInputStream in;
 	private BufferedOutputStream out;
-	private ArrayBlockingQueue<C> commandQueue = new ArrayBlockingQueue<Protocol.C>(
-			1);
-	private ArrayBlockingQueue<byte[]> dataQueue = new ArrayBlockingQueue<byte[]>(
-			1);
+	private ArrayBlockingQueue<C> commandQueue = new ArrayBlockingQueue<Protocol.C>(1);
+	private ArrayBlockingQueue<byte[]> dataQueue = new ArrayBlockingQueue<byte[]>(1);
 	byte[] commandBuffer = new byte[MAX_COMMAND_LENGTH];
 	byte[] dataBuffer = new byte[BLOCKSIZE + 1];
-	private DeviceModel deviceModel;
 	private AtomicBoolean program = new AtomicBoolean();
 
 	public Protocol(BufferedInputStream in, BufferedOutputStream out) {
 		this.in = in;
 		this.out = out;
-	}
-
-	public int getAddressValue(IOs io) {
-		sendCommand(GET, IO, io.address.toString());
-
-		return 0;
 	}
 
 	public void setAddressValue(IOs io, int value) {
@@ -108,14 +99,13 @@ public class Protocol {
 	}
 
 	public boolean setConfig(Config cfg, ArrayBlockingQueue<Integer> queue) {
-		String command = C.SET + S + FILE + S + CONFIGOBJECT + S;
+		String command = SET + S + FILE + S + CONFIGOBJECT + S;
 
 		if (!sendObject(command, cfg, queue)) {
 			System.out.println("setconfig false");
 			return false;
 		}
-		sendCommand(SET, STORE, CONFIGID, cfg.name, cfg.createId + "",
-				cfg.getChangeId() + "");
+		sendCommand(SET, STORE, CONFIGID, cfg.name, cfg.createId + "", cfg.getChangeId() + "");
 		if (waitAck()) {
 			String str = "";
 			ArrayList<AddressIdentifier> addresses = cfg.getUpdateAddresses();
@@ -124,9 +114,11 @@ public class Protocol {
 				str += addresses.get(i).toString();
 				str += S;
 			}
-			str += addresses.get(addresses.size() - 1).toString();
-			if (sendCommand(SET, STORE, UPDATE, str)) {
-				return waitAck();
+			if (addresses.size() > 0) {
+				str += addresses.get(addresses.size() - 1).toString();
+				if (sendCommand(SET, STORE, UPDATE, str)) {
+					return waitAck();
+				}
 			}
 
 		}
@@ -134,15 +126,14 @@ public class Protocol {
 
 	}
 
-	public boolean setStateMachine(StateMachine stateMachine,
-			ArrayBlockingQueue<Integer> queue) {
-		String command = C.SET + S + FILE + S + STATEMACHINEOBJECT + S;
+	public boolean setStateMachine(StateMachine stateMachine, ArrayBlockingQueue<Integer> queue) {
+		String command = SET + S + FILE + S + STATEMACHINEOBJECT + S;
 		if (!sendObject(command, stateMachine, queue)) {
 			System.out.println("setconfig false");
 			return false;
 		}
 
-		command = C.SET + S + FILE + S + STATEMACHINELUA + S;
+		command = SET + S + FILE + S + STATEMACHINELUA + S;
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		try {
 			baos.write(stateMachine.parse().getBytes());
@@ -154,18 +145,25 @@ public class Protocol {
 			return false;
 		}
 
-		return sendCommand(SET, STORE, STATEMACHINEID, stateMachine.getName(),
-				stateMachine.createId + "", stateMachine.getChangeId() + "");
+		return sendCommand(SET, STORE, STATEMACHINEID, stateMachine.getName(), stateMachine.createId + "", stateMachine.getChangeId() + "");
 	}
 
-	public Config getConfig(ArrayBlockingQueue<Integer> queue) {
+	public Portable getPortable(PortableType type, ArrayBlockingQueue<Integer> queue) {
 		byte[] databuffer = new byte[BLOCKSIZE + 1];
-
-		if (sendCommand(C.GET + S + FILE + S + CONFIGOBJECT)) {
+		String filename = "";
+		switch (type) {
+		case CONFIG:
+			filename = CONFIGOBJECT;
+			break;
+		case STATEMACHINE:
+			filename = STATEMACHINEOBJECT;
+		default:
+			break;
+		}
+		if (sendCommand(GET + S + FILE + S + filename)) {
 			try {
 				if (commandQueue.poll(ACK_TIMEOUT, TimeUnit.MILLISECONDS) == C.RET) {
-					byte[] data = dataQueue.poll(DATA_OFFER_TIMEOUT,
-							TimeUnit.MILLISECONDS);
+					byte[] data = dataQueue.poll(DATA_OFFER_TIMEOUT, TimeUnit.MILLISECONDS);
 					if (data != null) {
 						String strData = new String(data);
 						Pattern p = Pattern.compile("\\d+");
@@ -175,20 +173,17 @@ public class Protocol {
 						} else {
 							strData = null;
 						}
-						System.out.println("strdata.length" + strData.length()
-								+ "?Ret data :" + strData);
+						System.out.println("strdata.length" + strData.length() + "?Ret data :" + strData);
 						int filesize = Integer.parseInt(strData);
 						queue.offer(filesize);
 						mode = ReceiveMode.DATA_MODE;
 
-						int blocks = (int) Math.ceil((float) filesize
-								/ BLOCKSIZE);
+						int blocks = (int) Math.ceil((float) filesize / BLOCKSIZE);
 						ByteArrayOutputStream baos = new ByteArrayOutputStream();
-						sendCommand("" + C.ACK);
+						sendCommand(ACK);
 						for (int i = 0; i < blocks; i++) {
 							int checksum = 0;
-							databuffer = dataQueue.poll(DATA_WAIT_TIMEOUT,
-									TimeUnit.MILLISECONDS);
+							databuffer = dataQueue.poll(DATA_WAIT_TIMEOUT, TimeUnit.MILLISECONDS);
 							if (databuffer != null) {
 								for (int j = 0; j < BLOCKSIZE; j++) {
 									checksum += (0xFF & (short) databuffer[j]);
@@ -196,20 +191,16 @@ public class Protocol {
 								}
 								if ((byte) (checksum & 0xFF) == databuffer[BLOCKSIZE]) {
 
-									if (i == blocks - 1
-											&& filesize % BLOCKSIZE != 0) {
+									if (i == blocks - 1 && filesize % BLOCKSIZE != 0) {
 										// The last block is padded with zeros
-										baos.write(Arrays.copyOfRange(
-												databuffer, 0, filesize
-														% BLOCKSIZE));
+										baos.write(Arrays.copyOfRange(databuffer, 0, filesize % BLOCKSIZE));
 										queue.offer(filesize);
 									} else {
-										baos.write(Arrays.copyOfRange(
-												databuffer, 0, BLOCKSIZE));
+										baos.write(Arrays.copyOfRange(databuffer, 0, BLOCKSIZE));
 										queue.offer((i + 1) * BLOCKSIZE);
 									}
 
-									sendCommand("" + C.ACK);
+									sendCommand(ACK);
 									continue;
 
 								} else {
@@ -222,9 +213,9 @@ public class Protocol {
 							}
 						} // End iteration over blocks
 
-						ObjectInputStream ois = new ObjectInputStream(
-								new ByteArrayInputStream(baos.toByteArray()));
-						return (Config) ois.readObject();
+						ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(baos.toByteArray()));
+
+						return (Portable) ois.readObject();
 
 					}
 				}
@@ -278,7 +269,7 @@ public class Protocol {
 
 	public boolean isProgramRunning() {
 		if (sendCommand(GET, PROGRAM)) {
-			
+
 			try {
 				synchronized (program) {
 					program.wait(ACK_TIMEOUT);
@@ -287,7 +278,6 @@ public class Protocol {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 
-				
 			}
 		}
 		// System.out.println("id[0]: "+id[0]+"id[1]: "+id[1] +"id[2]: "+id[2]);
@@ -323,8 +313,7 @@ public class Protocol {
 		return send(command.getBytes());
 	}
 
-	private boolean sendObject(String command, Serializable obj,
-			ArrayBlockingQueue<Integer> queue) {
+	private boolean sendObject(String command, Serializable obj, ArrayBlockingQueue<Integer> queue) {
 
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
@@ -341,8 +330,7 @@ public class Protocol {
 		return sendByteArrayStream(command, baos, queue);
 	}
 
-	private boolean sendByteArrayStream(String command,
-			ByteArrayOutputStream baos, ArrayBlockingQueue<Integer> queue) {
+	private boolean sendByteArrayStream(String command, ByteArrayOutputStream baos, ArrayBlockingQueue<Integer> queue) {
 		int size, blocks, nackcount = 0;
 
 		byte[] send = new byte[(BLOCKSIZE + 1)];
@@ -352,30 +340,24 @@ public class Protocol {
 			if (waitAck()) {
 
 				blocks = (int) Math.ceil((float) size / BLOCKSIZE);
-				System.out.println("BLOCKSIZE: " + BLOCKSIZE + " blocks: "
-						+ blocks);
+				System.out.println("BLOCKSIZE: " + BLOCKSIZE + " blocks: " + blocks);
 				byte[] bytes = baos.toByteArray();
 				System.out.println("bytes.length: " + bytes.length);
 				for (int i = 0; i < blocks; i++) {
 					int checksum = 0;
-					System.out.println("i: " + i + " i * BLOCKSIZE=" + i
-							* BLOCKSIZE + " (i+1)*BLOCKSIZE=" + (i + 1)
-							* BLOCKSIZE);
-					send = Arrays.copyOf(
-							Arrays.copyOfRange(bytes, i * BLOCKSIZE, (i + 1)
-									* BLOCKSIZE), BLOCKSIZE + 1);
+					System.out.println("i: " + i + " i * BLOCKSIZE=" + i * BLOCKSIZE + " (i+1)*BLOCKSIZE=" + (i + 1) * BLOCKSIZE);
+					send = Arrays.copyOf(Arrays.copyOfRange(bytes, i * BLOCKSIZE, (i + 1) * BLOCKSIZE), BLOCKSIZE + 1);
 					for (int j = 0; j < BLOCKSIZE; j++) {
 						checksum += (0xFF & (short) send[j]);
 					}
-					System.out.println("checksum=" + checksum
-							+ " checksum &0xFF: " + (checksum & 0xFF));
+					System.out.println("checksum=" + checksum + " checksum &0xFF: " + (checksum & 0xFF));
 
 					send[BLOCKSIZE] = (byte) (checksum & 0xFF);
 					System.out.println("send[BLOCKSIZE]" + send[BLOCKSIZE]);
 					if (send(send)) {
 						if (waitAck()) {
 							nackcount = 0;
-							queue.offer((i + 1) * BLOCKSIZE);
+							queue.offer(i < (blocks - 1) ? (i + 1) * BLOCKSIZE : size);
 							continue;
 						} else if (nackcount < 1) {
 							i--;
@@ -426,10 +408,8 @@ public class Protocol {
 					System.out.println("BLOCKSIZE + 1 available");
 					if (in.read(dataBuffer) == BLOCKSIZE + 1) {
 						System.out.println("read BLOCKSIZE + 1 bytes");
-						if (dataQueue.offer(dataBuffer, DATA_OFFER_TIMEOUT,
-								TimeUnit.MILLISECONDS)) {
-							System.out.println("offered successfully to queue:"
-									+ new String(dataBuffer));
+						if (dataQueue.offer(dataBuffer, DATA_OFFER_TIMEOUT, TimeUnit.MILLISECONDS)) {
+							System.out.println("offered successfully to queue:" + new String(dataBuffer));
 							break;// Everything allright.
 						}
 						dataQueue.clear(); // clean Queue
@@ -465,9 +445,7 @@ public class Protocol {
 				// + in.available());
 				in.read(commandBuffer, 0, COMMAND_LENGTH);
 				for (C c : C.values()) {
-					if ((new String(
-							Arrays.copyOf(commandBuffer, COMMAND_LENGTH)))
-							.equals(c.toString())) {
+					if ((new String(Arrays.copyOf(commandBuffer, COMMAND_LENGTH))).equals(c.toString())) {
 						command = c;
 						// System.out
 						// .println("Protocol.commandfilter Command recognized: "
@@ -503,8 +481,7 @@ public class Protocol {
 		switch (command) {
 		case ACK:
 			try {
-				if (commandQueue.offer(command, ACK_TIMEOUT,
-						TimeUnit.MILLISECONDS) == false) {
+				if (commandQueue.offer(command, ACK_TIMEOUT, TimeUnit.MILLISECONDS) == false) {
 					commandQueue.clear();
 					return;
 				}
@@ -515,8 +492,7 @@ public class Protocol {
 			break;
 		case NAK:
 			try {
-				if (commandQueue.offer(command, ACK_TIMEOUT,
-						TimeUnit.MILLISECONDS) == false) {
+				if (commandQueue.offer(command, ACK_TIMEOUT, TimeUnit.MILLISECONDS) == false) {
 					commandQueue.clear();
 					return;
 				}
@@ -529,17 +505,19 @@ public class Protocol {
 
 			String[] parts = new String(commandBuffer).split(S);
 			if (parts[1].equals(REMOTE)) {
-				ArrayList<AddressIdentifier> adresses = AppData.currentWorkingDeviceModel
-						.getConfig().getUpdateAddresses();
+				ArrayList<AddressIdentifier> adresses = AppData.currentWorkingDeviceModel.getConfig().getUpdateAddresses();
 				for (int i = 0; i < adresses.size(); i++) {
 					// System.out.println(adresses.get(i));
-					AppData.currentWorkingDeviceModel.setIOvalue(
-							adresses.get(i),
-							Integer.parseInt(parts[i + 2].trim()));
+					try {
+						AppData.currentWorkingDeviceModel.setIOvalue(adresses.get(i), Integer.parseInt(parts[i + 2].trim()));
+					} catch (NumberFormatException e) {
+						e.printStackTrace();
+					} catch (IndexOutOfBoundsException e) {
+						e.printStackTrace();
+					}
 				}
 
-			} else if (parts[1].equals(CONFIGID)
-					|| parts[1].equals(STATEMACHINEID)) {
+			} else if (parts[1].equals(CONFIGID) || parts[1].equals(STATEMACHINEID)) {
 				// System.out.println("ret: " + new String(commandBuffer));
 				// System.out.println("parts[1]: "+ parts[1]);
 				if (parts.length == 5) {
@@ -574,13 +552,11 @@ public class Protocol {
 				}
 			} else {
 				try {
-					if (!commandQueue.offer(command, ACK_TIMEOUT,
-							TimeUnit.MILLISECONDS)) {
+					if (!commandQueue.offer(command, ACK_TIMEOUT, TimeUnit.MILLISECONDS)) {
 						commandQueue.clear();
 						return;
 					}
-					if (!dataQueue.offer(commandBuffer, DATA_OFFER_TIMEOUT,
-							TimeUnit.MILLISECONDS)) {
+					if (!dataQueue.offer(commandBuffer, DATA_OFFER_TIMEOUT, TimeUnit.MILLISECONDS)) {
 						dataQueue.clear();
 						return;
 					}
@@ -598,29 +574,19 @@ public class Protocol {
 		this.commandBuffer = new byte[MAX_COMMAND_LENGTH];
 	}
 
-	public String[] getConfigId() {
-
-		if (sendCommand(GET, STORE, CONFIGID)) {
-			try {
-				synchronized (id) {
-					id.wait(ACK_TIMEOUT);
-				}
-
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-				// System.out.println("error");
-				return null;
-			}
-			// System.out.println("id[0]: "+id[0]+"id[1]: "+id[1]
-			// +"id[2]: "+id[2]);
-			return id;
+	public String[] getId(PortableType type) {
+		String command = "";
+		switch (type) {
+		case CONFIG:
+			command = CONFIGID;
+			break;
+		case STATEMACHINE:
+			command = STATEMACHINEID;
+			break;
+		default:
+			break;
 		}
-		return null;
-
-	}
-
-	public String[] getStateMachineId() {
-		if (sendCommand(GET, STORE, STATEMACHINEID)) {
+		if (sendCommand(GET, STORE, command)) {
 			try {
 				synchronized (id) {
 					id.wait(ACK_TIMEOUT);
@@ -647,6 +613,12 @@ public class Protocol {
 	public void programStop() {
 		sendCommand(SET, PROGRAM, OFF);
 		waitAck();
+	}
+
+	public boolean setDeviceName(String name) {
+		sendCommand(SET, DEVNAME, name);
+		return waitAck();
+
 	}
 
 }
